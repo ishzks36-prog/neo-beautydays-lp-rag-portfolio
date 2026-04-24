@@ -3,910 +3,442 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>記事LP RAG分析ポートフォリオ | neo-beautydays (AGA女性クリニック)</title>
-<meta name="description" content="157チャンク × 20タグ × 5軸スコアで分解した記事LP分析ポートフォリオ。訴求・N1・売れる表現・改善施策を可視化。">
+<title>記事LP 分析レンズ・ポートフォリオ | neo-beautydays (AGA女性)</title>
+<meta name="description" content="記事LPを5つの分析レンズ（全体/コピー/ビジュアル/エビデンス/CTA）で切り分け、マーケの意思決定に必要な断面を可視化。">
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  body { font-family: 'Noto Sans JP', sans-serif; background: #0F0F23; color: #E5E7EB; }
-  .gradient-text { background: linear-gradient(135deg, #FF6B6B 0%, #FFA071 50%, #F7971E 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: #0B0B1E; color: #E5E7EB; }
+  .gradient-text { background: linear-gradient(135deg, #FF6B6B 0%, #FFA071 50%, #FFD200 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
   .tab-btn { transition: all .25s; border-bottom: 3px solid transparent; }
   .tab-btn.active { border-bottom-color: currentColor; }
-  .tab-btn:not(.active) { opacity: .55; }
+  .tab-btn:not(.active) { opacity: .45; }
   .tab-btn:not(.active):hover { opacity: .85; }
   .section-pane { display: none; animation: fadeIn .4s; }
   .section-pane.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-  .score-bar { background: linear-gradient(90deg, #FF6B6B, #FFD200); height: 8px; border-radius: 999px; transition: width .4s; }
-  .tag-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); }
+  .tag-chip { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); }
   .expr-card { background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); }
   .visual-card img { transition: transform .3s; }
   .visual-card:hover img { transform: scale(1.03); }
-  details summary { cursor: pointer; list-style: none; }
-  details summary::-webkit-details-marker { display: none; }
-  details[open] summary .chevron { transform: rotate(90deg); }
-  .chevron { display: inline-block; transition: transform .2s; }
-  .bg-gradient-awareness { background: linear-gradient(135deg, #FF6B6B 0%, #FFA071 100%); }
-  .bg-gradient-education { background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%); }
-  .bg-gradient-solution  { background: linear-gradient(135deg, #A18CD1 0%, #FBC2EB 100%); }
-  .bg-gradient-proof     { background: linear-gradient(135deg, #43E97B 0%, #38F9D7 100%); }
-  .bg-gradient-close     { background: linear-gradient(135deg, #F7971E 0%, #FFD200 100%); }
+  .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  #gate { position: fixed; inset: 0; z-index: 100; background: #0B0B1E; display: flex; align-items: center; justify-content: center; }
+  #gate.hidden { display: none; }
+  #content.locked { filter: blur(16px); pointer-events: none; user-select: none; }
 </style>
 </head>
 <body>
+
+<!-- Password Gate -->
+<div id="gate">
+  <div class="max-w-md w-full p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-3">🔐</div>
+      <h1 class="text-2xl font-black mb-2">プライベート・ポートフォリオ</h1>
+      <p class="text-sm text-white/60">パスワードを入力してください</p>
+    </div>
+    <form id="gate-form">
+      <input id="pw-input" type="password" class="w-full px-4 py-3 bg-white/10 border border-white/15 rounded-lg text-white focus:outline-none focus:border-white/30 mb-3" placeholder="password" autocomplete="off">
+      <button class="w-full py-3 rounded-lg font-bold bg-gradient-to-r from-red-400 to-amber-400 text-black hover:opacity-90 transition">開く</button>
+      <p id="pw-error" class="text-xs text-red-400 text-center mt-3 opacity-0">パスワードが違います</p>
+    </form>
+  </div>
+</div>
+
+<div id="content" class="locked">
 
 <!-- Hero -->
 <header class="relative px-6 md:px-12 py-10 md:py-16 border-b border-white/5">
   <div class="max-w-7xl mx-auto">
     <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/70 mb-4">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      Embedding 2 (3072D) × 20 販売ライティングタグ × 5軸スコア
+      Embedding 2 (3072D) × 20タグ × 5軸スコア × 5分析レンズ
     </div>
     <h1 class="text-3xl md:text-5xl font-black leading-tight">
-      記事LPを<span class="gradient-text">157チャンク</span>に分解して、<br>
-      <span class="gradient-text">売れる型</span>を抽出しました。
+      記事LPを<span class="gradient-text">5つの分析レンズ</span>で切り分け、<br>
+      <span class="gradient-text">マーケ判断</span>の断面にしました。
     </h1>
-    <p class="mt-4 text-white/60 max-w-2xl">
-      AI（Gemini Embedding 2 + Gemini 2.5 Pro）で記事LP全体を「画像・テキスト・動画」のブロック単位に分解。<br>
-      各チャンクに販売ライティングの20タグを割り当て、5軸でスコアリング。<br>
-      その結果を、ファネルの5段階に沿って「訴求・N1・売れる表現・改善施策」として整理しました。
+    <p class="mt-5 text-white/60 max-w-3xl">
+      LPを「ファネルの構造」で分けるのではなく、「マーケティング担当者が見たい断面」ごとに再構成。
+      全体像・コピーの勝ち型・ビジュアル機能・エビデンス地図・CTA動線 — 5つのレンズで、意思決定に必要な情報を引き出せます。
     </p>
     <div class="mt-6 flex flex-wrap gap-4 text-sm">
-      <a href="https://neo-beautydays.com/ab/WYIeoqPmdkIDETflxgg" target="_blank" class="inline-flex items-center gap-2 text-white/70 hover:text-white">
-        🔗 分析元: https://neo-beautydays.com/ab/WYIeoqPmdkIDETflxgg
-      </a>
+      <a href="https://neo-beautydays.com/ab/WYIeoqPmdkIDETflxgg" target="_blank" class="text-white/70 hover:text-white">🔗 分析元LP</a>
       <span class="text-white/40">|</span>
-      <span class="text-white/60">生成: 2026-04-24 19:42:59</span>
+      <span class="text-white/60">生成: 2026-04-24 20:33:32</span>
     </div>
   </div>
 </header>
 
-<!-- Summary strip -->
-<section class="px-6 md:px-12 py-6 border-b border-white/5 bg-white/[0.02]">
-  <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-    <div><div class="text-3xl font-black gradient-text">157</div><div class="text-xs text-white/50 mt-1">総チャンク数</div></div>
-    <div><div class="text-3xl font-black gradient-text">5</div><div class="text-xs text-white/50 mt-1">ファネル段階</div></div>
-    <div><div class="text-3xl font-black gradient-text">20</div><div class="text-xs text-white/50 mt-1">販売ライティングタグ</div></div>
-    <div><div class="text-3xl font-black gradient-text">3072D</div><div class="text-xs text-white/50 mt-1">Embeddingベクトル</div></div>
-  </div>
-</section>
-
 <!-- Tabs -->
-<nav class="sticky top-0 z-20 backdrop-blur-xl bg-[#0F0F23]/90 border-b border-white/10">
+<nav class="sticky top-0 z-20 backdrop-blur-xl bg-[#0B0B1E]/90 border-b border-white/10">
   <div class="max-w-7xl mx-auto px-4 md:px-8 overflow-x-auto">
-    <div id="tab-bar" class="flex items-center gap-1 md:gap-3 min-w-max">
-      <button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#FF6B6B" data-target="pane-awareness"><span class="mr-1">🎯</span>問題提起 & 共感<span class="ml-2 text-xs opacity-70">18件</span></button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#4FACFE" data-target="pane-education"><span class="mr-1">🔬</span>原因教育 & 認知転換<span class="ml-2 text-xs opacity-70">6件</span></button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#A18CD1" data-target="pane-solution"><span class="mr-1">💊</span>解決策 & 作用機序<span class="ml-2 text-xs opacity-70">30件</span></button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#43E97B" data-target="pane-proof"><span class="mr-1">✅</span>証拠 & 権威<span class="ml-2 text-xs opacity-70">14件</span></button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#F7971E" data-target="pane-close"><span class="mr-1">🚀</span>安心 & 行動喚起<span class="ml-2 text-xs opacity-70">78件</span></button>
-    </div>
+    <div class="flex items-center gap-1 md:gap-3 min-w-max"><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#4FACFE" data-target="pane-overview"><span class="mr-1">📊</span>全体プロファイル</button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#FF6B6B" data-target="pane-copy"><span class="mr-1">💎</span>勝ちコピー分析</button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#A18CD1" data-target="pane-visual"><span class="mr-1">🖼</span>ビジュアル戦略</button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#43E97B" data-target="pane-evidence"><span class="mr-1">🔢</span>エビデンス・権威マップ</button><button class="tab-btn px-4 md:px-5 py-3 md:py-4 font-bold text-sm md:text-base whitespace-nowrap" style="color:#F7971E" data-target="pane-cta"><span class="mr-1">🎯</span>CTA動線分析</button></div>
   </div>
 </nav>
 
 <!-- Panes -->
 <main class="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
   
-    <div id="pane-awareness" class="section-pane">
-      <!-- Section hero -->
-      <div class="rounded-2xl p-6 md:p-10 bg-gradient-awareness text-black/80 mb-8">
-        <div class="flex items-center gap-3 text-xs font-bold mb-3 opacity-70">
-          <span>Awareness (FV〜導入)</span><span>·</span><span>18チャンク</span>
-        </div>
-        <h2 class="text-3xl md:text-5xl font-black leading-tight mb-2">🎯 問題提起 & 共感</h2>
-        <p class="text-lg md:text-xl opacity-80">読者の「これ、私のこと？」を掴む</p>
-      </div>
+    <div id="pane-overview" class="section-pane">
+      <div class="rounded-2xl p-6 md:p-10 mb-8" style="background:linear-gradient(135deg,#4FACFE 0%,#00F2FE 100%);color:#000;"><h2 class="text-3xl md:text-5xl font-black mb-2">📊 全体プロファイル</h2><p class="text-lg md:text-xl opacity-80 mb-1">このLPの基本スペック・構成・スコアを俯瞰</p><p class="text-sm opacity-60">157 チャンク｜7分読了想定</p></div>
 
-      <div class="grid md:grid-cols-3 gap-6 mb-8">
-        <!-- 基本情報 -->
-        <div class="md:col-span-2 rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span>📌</span>訴求の核</h3>
-          <p class="text-white/90 leading-relaxed mb-4">「年齢のせい」と諦めかけているその薄毛の悩みは、実は放置すると悪化し続ける進行性の問題であり、これは他人事ではなく『あなたのこと』ですよ、と強く自分事化させること。</p>
-          <div class="text-sm text-white/60 border-l-2 border-white/20 pl-3 italic">「ドキッ、これって私のこと…？」「このままじゃ、もっとひどくなるのかな…」</div>
-
-          <div class="mt-5 pt-5 border-t border-white/10">
-            <div class="flex flex-wrap gap-2"><span class="tag-chip px-2 py-1 rounded text-xs">問題提起 <span class="opacity-60">× 9</span></span><span class="tag-chip px-2 py-1 rounded text-xs">問題深刻化 <span class="opacity-60">× 6</span></span><span class="tag-chip px-2 py-1 rounded text-xs">共感 <span class="opacity-60">× 2</span></span><span class="tag-chip px-2 py-1 rounded text-xs">注意喚起 <span class="opacity-60">× 1</span></span></div>
-          </div>
-        </div>
-
-        <!-- スコアカード -->
+      <div class="grid md:grid-cols-3 gap-6 mb-10">
         <div class="rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3">📊 セクションスコア</h3>
-          <div class="space-y-3 text-sm">
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">総合スコア</span><span class="font-bold">0.592</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:51%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">役割強度</span><span class="font-bold">0.714</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:71%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">証拠密度</span><span class="font-bold">0.019</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:1%"></div></div>
-            </div>
+          <h3 class="text-sm text-white/60 mb-3">📝 ブロック構成</h3>
+          <div class="grid grid-cols-3 gap-3 text-center">
+            <div><div class="text-2xl font-black text-white">80</div><div class="text-xs text-white/50">テキスト</div></div>
+            <div><div class="text-2xl font-black text-white">51</div><div class="text-xs text-white/50">画像</div></div>
+            <div><div class="text-2xl font-black text-white">26</div><div class="text-xs text-white/50">動画</div></div>
           </div>
-          <div class="mt-4 pt-4 border-t border-white/10 text-xs text-white/50 space-y-1">
-            <div class="flex justify-between"><span>📝 テキスト</span><span>14</span></div>
-            <div class="flex justify-between"><span>🖼 画像</span><span>4</span></div>
-            <div class="flex justify-between"><span>🎞 動画</span><span>0</span></div>
+        </div>
+        <div class="rounded-xl p-5 bg-white/[0.03] border border-white/10">
+          <h3 class="text-sm text-white/60 mb-3">📊 スコア統計</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between"><span class="text-white/70">総合(平均)</span><span class="font-bold">0.577</span></div>
+            <div class="flex justify-between"><span class="text-white/70">役割強度(平均)</span><span class="font-bold">0.667</span></div>
+            <div class="flex justify-between"><span class="text-white/70">証拠密度(平均)</span><span class="font-bold">0.13</span></div>
+          </div>
+        </div>
+        <div class="rounded-xl p-5 bg-white/[0.03] border border-white/10">
+          <h3 class="text-sm text-white/60 mb-3">📏 分量</h3>
+          <div class="space-y-1 text-sm">
+            <div class="flex justify-between"><span class="text-white/70">テキスト総量</span><span class="font-bold">3,410字</span></div>
+            <div class="flex justify-between"><span class="text-white/70">読了目安</span><span class="font-bold">約7分</span></div>
+            <div class="flex justify-between"><span class="text-white/70">タグ出現数</span><span class="font-bold">20/20</span></div>
           </div>
         </div>
       </div>
 
-      <!-- N1 Persona -->
-      <div class="rounded-xl p-5 md:p-7 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>想定読者 N1</h3>
-        <div class="grid md:grid-cols-4 gap-4 text-sm">
-          <div><div class="text-white/50 text-xs mb-1">年齢層</div><div class="font-bold">40-50代</div></div>
-          <div class="md:col-span-3"><div class="text-white/50 text-xs mb-1">置かれている状況</div><div>シャンプーやブラッシング時の抜け毛が明らかに増え、分け目や頭頂部の地肌が透けて見えるようになってきた。</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic text-white/80">「もう年だから仕方ないのかな…でも、人の視線が頭に集まっている気がして、鏡を見るのが憂鬱だ。」</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">本当の欲求</div><div class="font-bold text-white">薄毛の悩みから解放され、髪型を気にせずおしゃれを楽しめる自信を取り戻したい。</div></div>
-        </div>
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-10">
+        <h3 class="text-xl font-bold mb-5">🏷 タグ分布（20販売ライティング要素）</h3>
+        <div class="space-y-1"><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">社会的証明</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:100%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">FAQ</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:100%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">27</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">解決提示</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:100%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">21</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">保証・安心</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:95%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">19</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">希少性</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:45%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">9</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">問題提起</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:40%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">8</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">ベネフィット</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:35%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">7</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">問題深刻化</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:25%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">5</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">権威性</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:20%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">4</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">体験談</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:20%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">4</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">認知転換</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:20%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">4</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">CTA（ボタン）</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:20%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">4</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">比較</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:15%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">3</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">未分類</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:15%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">3</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">共感</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:10%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">2</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">作用機序</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:10%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">2</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">注意喚起</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:10%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">2</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">原因教育</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:5%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">1</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">反論処理</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:5%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">1</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-32 text-white/60">ビジュアル証拠</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:5%;background:linear-gradient(90deg,#4FACFE,#00F2FE)"></div></div><span class="text-xs text-white/70 w-6">1</span></div></div>
       </div>
 
-      <!-- 売れる表現 Top3 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>💎</span>売れる表現 Top 3</h3>
-        <div class="grid md:grid-cols-3 gap-5">
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">問題提起</span>
-            <span class="tag-chip px-2 py-0.5 rounded">text</span>
-            <span class="ml-auto text-white/40">score 0.6443</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">年齢を重ねるにつれて 抜け毛が増え、気づけば地肌がスケスケ。</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.8812</div><div>証拠密度 0.0</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6651364/66539244-c999-41cf-b6df-4c7a1e870c2e.jpg" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">問題提起</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.6298</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">頭皮と、根元に白髪が混じった濃い茶色の髪の毛のクローズアップ画像です。</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.6361</div><div>証拠密度 0.0</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4453697/896cdfef-90f0-4c9a-8cf2-13808bfb96f3.jpg" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">問題提起</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.6265</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">頭頂部の髪の毛が薄くなり、地肌が見えている状態を上から撮影した画像です。</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7538</div><div>証拠密度 0.0</div>
-          </div>
-        </div></div>
-      </div>
-
-      <!-- 視覚ハイライト -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🖼</span>ビジュアル訴求のハイライト</h3><div class="grid md:grid-cols-3 gap-4">
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6651364/66539244-c999-41cf-b6df-4c7a1e870c2e.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">問題提起</span><span class="ml-auto">0.6298</span></div>
-            <p class="text-white/60">頭皮と、根元に白髪が混じった濃い茶色の髪の毛のクローズアップ画像です。</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4453697/896cdfef-90f0-4c9a-8cf2-13808bfb96f3.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">問題提起</span><span class="ml-auto">0.6265</span></div>
-            <p class="text-white/60">頭頂部の髪の毛が薄くなり、地肌が見えている状態を上から撮影した画像です。</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4301247/df6e6b83-f343-44c9-bc27-01db0db157c0.png" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">問題深刻化</span><span class="ml-auto">0.6182</span></div>
-            <p class="text-white/60">この画像は、検索しても見つからず、一度閉じると二度と表示されない可能性がある記事について注意を促す警告文です。 警告
-この記事は検索しても
-出てきません
-1度閉じてしまうと2度と表示
-されない可能性があるのでご注意ください！</p>
-          </div>
-        </div></div></div>
-
-      <!-- 数値エビデンス -->
       
-
-      <!-- 改善施策 -->
-      <div class="rounded-xl p-5 md:p-7 bg-amber-500/5 border border-amber-500/20 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-200"><span>⚡</span>改善施策</h3>
-        <ul class="text-white/80"><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>「日本人女性の3人に1人が薄毛に悩んでいる」といった公的な統計データを提示し、悩みの普遍性と客観的な証拠（証拠密度）を補強する。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>問題提起だけでなく、「髪型がうまく決まらないと、一日中気分が沈みますよね」といった、読者が日常で感じる具体的な感情に寄り添う共感の表現を増やす。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>導入部分に「皮膚科専門医が解説」や「発毛専門クリニック監修」といった権威性のある情報を加え、この記事が信頼できる情報源であることを示唆し、続きを読む動機を強化する。</span></li></ul>
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-3 flex items-center gap-2"><span>📌</span>このレンズが教えてくれること</h3>
+        <p class="text-white/90 leading-relaxed">このLPは、豊富な画像・動画と、「社会的証明」「FAQ」「保証」といった安心材料を大量に投入することで、読者の不安を解消し尽くすことに特化した『安心材料の物量作戦』型の構成です。</p>
       </div>
+
+      <div class="rounded-xl p-6 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>N1インサイト</h3>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div><div class="text-white/50 text-xs mb-1">誰の心が動くか</div><div>薄毛治療を考え始めたものの、効果や費用、副作用への不安が大きく、一歩を踏み出せずにいる30〜40代の慎重な女性。複数のクリニックを比較検討し、納得できる情報を探している。</div></div>
+          <div><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic">['これだけ多くの人が使ってるなら安心かも…', '気になってた質問、全部書いてある。返金保証もあるなら、試してみる価値はありそう。']</div></div>
+          <div><div class="text-white/50 text-xs mb-1">なぜ刺さるか</div><div>感情的な煽り（agitation: 5）や共感（empathy: 2）を抑える一方、「社会的証明(30)」「FAQ(27)」「保証(19)」といった客観的な安心材料を網羅的に提示しているため。論理的に納得して進めたい慎重な読者の不安を一つずつ解消し、信頼を獲得する構成が刺さります。</div></div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="rounded-xl p-6 bg-emerald-500/5 border border-emerald-500/20">
+          <h3 class="text-lg font-bold mb-3 text-emerald-200 flex items-center gap-2"><span>💎</span>勝ちパターン</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-emerald-300">▸</span><span>『社会的証明とFAQの物量で、読者のあらゆる不安を先回りして潰す』ことで、比較検討の土俵から抜け出し、第一想起を獲得する。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>『テキストの主張には、必ず画像か動画のビジュアル証拠をセットで提示する』ことで、直感的な理解を促し、読み進める負担を軽減させる。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>『解決策を提示した直後に、強力な保証（Guarantee）を配置する』ことで、行動への最後の心理的ハードルを取り除き、CTAへの流れをスムーズにする。</span></li>
+          </ul>
+        </div>
+        <div class="rounded-xl p-6 bg-amber-500/5 border border-amber-500/20">
+          <h3 class="text-lg font-bold mb-3 text-amber-200 flex items-center gap-2"><span>⚡</span>改善施策</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】冒頭部分に、読者の悩みに深く寄り添う「共感（empathy）」ブロックを3つ追加する。現状（2ブロック）では導入が弱く、読者が自分事化する前に離脱している可能性があるため。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【再設計】根拠スコア（evidence_mean: 0.13）が著しく低いため、特に「ベネフィット」や「解決策」を主張するブロックに、具体的な数値データや専門家のコメントといった客観的根拠を追記し、説得力を強化する。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】「お客様の声（testimonial）」が4件と少ないため、多様な年代・悩みのパターンの声（例：30代産後の悩み、50代の加齢による悩みなど）を写真付きで最低3件追加し、読者が自分に近い事例を見つけられるようにする。</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-5 bg-blue-500/5 border border-blue-500/20 mb-6"><h4 class="text-sm font-bold text-blue-200 mb-2">💡 このレンズ固有の気づき</h4><p class="text-sm text-white/80">ブロック総数157に対し、テキスト量が3410文字と極端に少なく、根拠スコア（0.13）も低い。これは、個々のブロックが非常に短く、根拠の薄いビジュアル要素を連続させている「雰囲気重視」の構成であることを示唆しており、論理性を重視する層には響きにくいという弱点を浮き彫りにしている。</p></div>
+    
     </div>
-    <div id="pane-education" class="section-pane">
-      <!-- Section hero -->
-      <div class="rounded-2xl p-6 md:p-10 bg-gradient-education text-black/80 mb-8">
-        <div class="flex items-center gap-3 text-xs font-bold mb-3 opacity-70">
-          <span>Understanding</span><span>·</span><span>6チャンク</span>
+    <div id="pane-copy" class="section-pane">
+      <div class="rounded-2xl p-6 md:p-10 mb-8" style="background:linear-gradient(135deg,#FF6B6B 0%,#FFA071 100%);color:#000;"><h2 class="text-3xl md:text-5xl font-black mb-2">💎 勝ちコピー分析</h2><p class="text-lg md:text-xl opacity-80 mb-1">高スコア表現に現れる型・語彙パターンを抽出</p><p class="text-sm opacity-60">上位30チャンクから文型を抽出</p></div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-10">
+        <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10">
+          <h3 class="text-lg font-bold mb-4">🎯 高スコア表現に現れる型</h3>
+          <div class="space-y-1"><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">エクスクラメーション</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:100%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">9/30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">引用（「」）</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:60%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">5/30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">数字訴求</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:48%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">4/30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">問いかけ型</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:24%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">2/30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">命令・指示（〜してください/今すぐ）</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:24%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">2/30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">リスト・箇条</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:24%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">2/30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">逆説・反転（実は/本当は）</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:0%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">0/30</span></div><div class="flex items-center gap-2 py-1.5"><span class="text-xs w-48 text-white/70">否定（〜ない）</span><div class="flex-1 bg-white/5 rounded h-2 overflow-hidden"><div class="h-2 rounded" style="width:0%;background:linear-gradient(90deg,#FF6B6B,#FFA071)"></div></div><span class="text-xs text-white/70 w-8">0/30</span></div></div>
+          <p class="text-xs text-white/40 mt-4">※ 上位30テキストチャンクのうち、各パターンが出現した回数</p>
         </div>
-        <h2 class="text-3xl md:text-5xl font-black leading-tight mb-2">🔬 原因教育 & 認知転換</h2>
-        <p class="text-lg md:text-xl opacity-80">なぜ悩むのか、常識を覆す</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-6 mb-8">
-        <!-- 基本情報 -->
-        <div class="md:col-span-2 rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span>📌</span>訴求の核</h3>
-          <p class="text-white/90 leading-relaxed mb-4">あなたがこれまで良かれと思って続けてきた市販の育毛剤や頭皮マッサージは、実は薄毛の根本解決にはならず、本当の原因は乱れたヘアサイクルにあります。</p>
-          <div class="text-sm text-white/60 border-l-2 border-white/20 pl-3 italic">「え、今までのお手入れは全部ムダだったの？」「じゃあ、もう何を信じたらいいの…？」</div>
-
-          <div class="mt-5 pt-5 border-t border-white/10">
-            <div class="flex flex-wrap gap-2"><span class="tag-chip px-2 py-1 rounded text-xs">認知転換 <span class="opacity-60">× 4</span></span><span class="tag-chip px-2 py-1 rounded text-xs">原因教育 <span class="opacity-60">× 2</span></span></div>
-          </div>
-        </div>
-
-        <!-- スコアカード -->
-        <div class="rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3">📊 セクションスコア</h3>
-          <div class="space-y-3 text-sm">
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">総合スコア</span><span class="font-bold">0.612</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:53%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">役割強度</span><span class="font-bold">0.737</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:73%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">証拠密度</span><span class="font-bold">0.056</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:5%"></div></div>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-white/10 text-xs text-white/50 space-y-1">
-            <div class="flex justify-between"><span>📝 テキスト</span><span>3</span></div>
-            <div class="flex justify-between"><span>🖼 画像</span><span>3</span></div>
-            <div class="flex justify-between"><span>🎞 動画</span><span>0</span></div>
-          </div>
+        <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10">
+          <h3 class="text-lg font-bold mb-4">💎 スコアTop 10 コピー</h3>
+          <div class="space-y-3 max-h-96 overflow-y-auto"><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">権威性</span><span class="ml-auto text-white/40">score 0.7287</span></div><p class="text-sm text-white/90 leading-relaxed">※画像はイメージです 「シャワーの後の抜け毛が気になる」 「外出するときは帽子が必須」</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">保証・安心</span><span class="ml-auto text-white/40">score 0.6996</span></div><p class="text-sm text-white/90 leading-relaxed">※発毛実感率は2023年4月～2024年9月の期間に治療を6ヶ月継続した3,307名を対象としたアンケート結果より算出(当院調べ)※効果には個人差があり、結果を保証するものではありません※自由診療/保険適用外※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます カウンセリングと施術で 1時間くらいで終わりました♪</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">解決提示</span><span class="ml-auto text-white/40">score 0.6985</span></div><p class="text-sm text-white/90 leading-relaxed">※1 副作用：初期脱毛･多毛症･かぶれ･かゆみ･動悸･息切れ･めまい･一時的な血圧の低下･手や足のむくみ･腹痛･乳房痛･頻尿･生理不順など･出血･頭痛･血圧の低下※服用期間：4ヵ月 治療期間：月額63,400円～95,600円(税込) 総額：253,600円～382,400円(税込) 治療法：リバースレディ＋Dr'sメソ※2 自由診療/保険適用外※医師の判断により治療を受けられない可能性や医薬品を</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">社会的証明</span><span class="ml-auto text-white/40">score 0.6959</span></div><p class="text-sm text-white/90 leading-relaxed">※2025年4月1日時点(提携院を含む)</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">解決提示</span><span class="ml-auto text-white/40">score 0.6879</span></div><p class="text-sm text-white/90 leading-relaxed">※画像はイメージです※自由診療/保険適用外※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます AGAスキンクリニックの顔出し不要 匿名モニターに興味がありますか？</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">解決提示</span><span class="ml-auto text-white/40">score 0.6825</span></div><p class="text-sm text-white/90 leading-relaxed">※1 副作用：初期脱毛･多毛症･かぶれ･かゆみ･動悸･息切れ･めまい･一時的な血圧の低下･手や足のむくみ･腹痛･乳房痛･頻尿･生理不順など･出血･頭痛･血圧の低下※服用期間：5ヵ月 治療期間：月額63,400円～95,600円(税込) 総額：317,000円～478,000円(税込) 治療法：リバースレディ＋Dr'sメソ※2 自由診療/保険適用外※医師の判断により治療を受けられない可能性や医薬品を</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">認知転換</span><span class="ml-auto text-white/40">score 0.6652</span></div><p class="text-sm text-white/90 leading-relaxed">「頭皮環境を整える」 発毛する根拠は一切なし。</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">解決提示</span><span class="ml-auto text-white/40">score 0.6574</span></div><p class="text-sm text-white/90 leading-relaxed">AGAスキンクリニックレディース 1人でも多くの女性が薄毛卒業できる様 赤字覚悟でモニターを大募集中！</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">保証・安心</span><span class="ml-auto text-white/40">score 0.6564</span></div><p class="text-sm text-white/90 leading-relaxed">※自由診療/保険適用外※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます※カウンセリング、医師の問診、マイクロスコープによる頭皮診断、血液検査が無料 無理な勧誘・追加料金・顔出し 一切ないのでご安心ください！</p></div><div class="expr-card rounded-xl p-4"><div class="flex items-center gap-2 text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">権威性</span><span class="ml-auto text-white/40">score 0.6453</span></div><p class="text-sm text-white/90 leading-relaxed">在籍している医師・毛髪診断士が 一人一人にあった治療</p></div></div>
         </div>
       </div>
 
-      <!-- N1 Persona -->
-      <div class="rounded-xl p-5 md:p-7 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>想定読者 N1</h3>
-        <div class="grid md:grid-cols-4 gap-4 text-sm">
-          <div><div class="text-white/50 text-xs mb-1">年齢層</div><div class="font-bold">35-50代</div></div>
-          <div class="md:col-span-3"><div class="text-white/50 text-xs mb-1">置かれている状況</div><div>市販の育毛剤やスカルプシャンプーをいくつか試したが、一向に効果を感じられず、途方に暮れている。</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic text-white/80">「高いシャンプーを使っても抜け毛が減らない…。私のやり方が悪いのかな…。」</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">本当の欲求</div><div class="font-bold text-white">もう髪のことで悩みたくない、遠回りせず根本から解決できる方法が知りたい。</div></div>
-        </div>
-      </div>
-
-      <!-- 売れる表現 Top3 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>💎</span>売れる表現 Top 3</h3>
-        <div class="grid md:grid-cols-3 gap-5">
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">認知転換</span>
-            <span class="tag-chip px-2 py-0.5 rounded">text</span>
-            <span class="ml-auto text-white/40">score 0.6638</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">「頭皮環境を整える」 発毛する根拠は一切なし。</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.8042</div><div>証拠密度 0.3333</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4179119/d46c4072-a6d0-420c-81a1-b7d72253ca82.jpg" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">認知転換</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.6333</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">この画像は、マッサージ、育毛シャンプー、育毛剤といった一般的なホームケアでは薄毛が治らないことを示す警告であり、それらの方法が効果がないことを強調しています。 ホームケアでは治らない！
-マッサージ
-シャンプー
-育毛シャンプー
-育毛
-50ml
-育毛剤</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7828</div><div>証拠密度 0.0</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6623235/6c501484-4959-4d97-ba88-27f8969b5d57.jpg" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">原因教育</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.6147</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">この画像は、1つの毛根における正常なヘアサイクル（成長期、移行期、休止期）と、AGA（男性型脱毛症）がそのサイクルを乱し、毛の成長を阻害する様子を図解しています。 1つの毛根から毛が抜けるまで
-早期
-成長期
-脱毛する
-成長が始まる
-中期
-成長期
-成長する
-正常時
-成長期
-毛球がより太く成長する
-後期
-成長期
-毛球の退縮が始まる
-移行期
-毛球が完全に退化する
-休止期
-AGA
-成長できない
-(数ヶ月〜数年)
-AGAになるとヘアサイクルの乱れを引き起こす可能性が</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7395</div><div>証拠密度 0.0</div>
-          </div>
-        </div></div>
-      </div>
-
-      <!-- 視覚ハイライト -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🖼</span>ビジュアル訴求のハイライト</h3><div class="grid md:grid-cols-3 gap-4">
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4179119/d46c4072-a6d0-420c-81a1-b7d72253ca82.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">認知転換</span><span class="ml-auto">0.6333</span></div>
-            <p class="text-white/60">この画像は、マッサージ、育毛シャンプー、育毛剤といった一般的なホームケアでは薄毛が治らないことを示す警告であり、それらの方法が効果がないことを強調しています。 ホームケアでは治らない！
-マッサージ
-シャンプー
-育毛シャンプー
-育毛
-50ml
-育毛剤</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6623235/6c501484-4959-4d97-ba88-27f8969b5d57.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">原因教育</span><span class="ml-auto">0.6147</span></div>
-            <p class="text-white/60">この画像は、1つの毛根における正常なヘアサイクル（成長期、移行期、休止期）と、AGA（男性型脱毛症）がそのサイクルを乱し、毛の成長を阻害する様子を図解しています。 1つの毛根から毛が抜けるまで
-早期
-成長期
-脱毛する
-成長が始まる
-中期
-成長期
-成長する
-正常時
-成長期
-毛球がより太く成長する
-後期</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4453531/57e07dc8-e0cd-48e3-969a-bea3a6641c2f.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">認知転換</span><span class="ml-auto">0.5858</span></div>
-            <p class="text-white/60">シャンプーで泡立った髪の毛と、シャワーを浴びている人の背中が写っています。</p>
-          </div>
-        </div></div></div>
-
-      <!-- 数値エビデンス -->
       
-
-      <!-- 改善施策 -->
-      <div class="rounded-xl p-5 md:p-7 bg-amber-500/5 border border-amber-500/20 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-200"><span>⚡</span>改善施策</h3>
-        <ul class="text-white/80"><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>「ホームケアでは治らない」という主張を裏付けるために、市販品と医薬品の成分の違いや、皮膚科医の見解といった客観的な証拠を追加する。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>なぜ女性のヘアサイクルが乱れるのか、その原因（ホルモンバランスの変化など）について、もう少し踏み込んだ解説を加えて読者の納得感を深める。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>読者の不安を煽るだけでなく、「しかし、正しい知識があれば解決できます」といった希望を持たせ、次の解決策パートへスムーズに繋ぐ橋渡しの一文を入れる。</span></li></ul>
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-3 flex items-center gap-2"><span>📌</span>このレンズが教えてくれること</h3>
+        <p class="text-white/90 leading-relaxed">このLPの強みは、読者の悩みに共感する『引用（「」）』と感情を後押しする『エクスクラメーション（！）』を使いつつ、スコア上位の大部分を占める詳細な注意書き（※）によって、医療機関としての誠実さを示し、安心感を与えている点にあります。</p>
       </div>
+
+      <div class="rounded-xl p-6 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>N1インサイト</h3>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div><div class="text-white/50 text-xs mb-1">誰の心が動くか</div><div>市販のヘアケア製品に限界を感じ、専門治療を検討し始めたものの、副作用や高額な料金、強引な勧誘に強い不安と警戒心を抱いている30代〜50代の女性。</div></div>
+          <div><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic">「『シャワーの後の抜け毛』…まさに私のことだ…」「副作用や料金もちゃんと書いてあるし、無理な勧誘もないなら安心かも。」</div></div>
+          <div><div class="text-white/50 text-xs mb-1">なぜ刺さるか</div><div>ターゲットが抱える「騙されたくない」「失敗したくない」という強い不安に対し、派手な宣伝文句よりも、副作用や料金といった詳細な情報開示が「誠実さ」の証として機能し、信頼獲得に繋がっているためです。</div></div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="rounded-xl p-6 bg-emerald-500/5 border border-emerald-500/20">
+          <h3 class="text-lg font-bold mb-3 text-emerald-200 flex items-center gap-2"><span>💎</span>勝ちパターン</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-emerald-300">▸</span><span>『※』を用いて副作用・料金・期間などのリスクや詳細情報をあえて詳細に開示し、誠実さを示すことで読者の信頼を獲得する。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>『「」』で読者の具体的な悩み（例：「抜け毛が気になる」）を代弁して強い共感を生み出し、『！』で感情的な勢いを加えて行動喚起に繋げる。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>『〜一切なし』『ご安心ください』といった表現で、読者が抱える不安（例：無理な勧誘、追加料金）を明確に否定し、来院への心理的ハードルを下げる。</span></li>
+          </ul>
+        </div>
+        <div class="rounded-xl p-6 bg-amber-500/5 border border-amber-500/20">
+          <h3 class="text-lg font-bold mb-3 text-amber-200 flex items-center gap-2"><span>⚡</span>改善施策</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】『実は、女性の薄毛の多くはクリニックでしか改善しません』のように、読者の常識を覆す『逆説・反転』のコピーを追加し、専門治療の必要性を強く印象付ける。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【再設計】現在、長文の注意書きになっている副作用や料金プランを、箇条書きやアイコン付きのリスト形式に再設計し、視覚的な分かりやすさを向上させる。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】『その抜け毛、いつまで一人で悩みますか？』のような、読者が自分事として考えざるを得ない『問いかけ型』のコピーを記事の冒頭や中盤に追加し、続きを読む動機を強化する。</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-5 bg-blue-500/5 border border-blue-500/20 mb-6"><h4 class="text-sm font-bold text-blue-200 mb-2">💡 このレンズ固有の気づき</h4><p class="text-sm text-white/80">通常は読み飛ばされがちな『※』から始まる注意書きや免責事項が、高スコアチャンクの大半を占めている点が特徴的です。これは、本LPのターゲットが広告的な美辞麗句よりも、医療機関としての透明性や誠実さを最も重視しているという強力なシグナルであり、信頼醸成こそがCVR向上の鍵であることを示唆しています。</p></div>
+    
     </div>
-    <div id="pane-solution" class="section-pane">
-      <!-- Section hero -->
-      <div class="rounded-2xl p-6 md:p-10 bg-gradient-solution text-black/80 mb-8">
-        <div class="flex items-center gap-3 text-xs font-bold mb-3 opacity-70">
-          <span>Consideration</span><span>·</span><span>30チャンク</span>
-        </div>
-        <h2 class="text-3xl md:text-5xl font-black leading-tight mb-2">💊 解決策 & 作用機序</h2>
-        <p class="text-lg md:text-xl opacity-80">商品の正体と「なぜ効くか」</p>
+    <div id="pane-visual" class="section-pane">
+      <div class="rounded-2xl p-6 md:p-10 mb-8" style="background:linear-gradient(135deg,#A18CD1 0%,#FBC2EB 100%);color:#000;"><h2 class="text-3xl md:text-5xl font-black mb-2">🖼 ビジュアル戦略</h2><p class="text-lg md:text-xl opacity-80 mb-1">画像・動画がどんな役割を果たしているか</p><p class="text-sm opacity-60">画像51枚 + 動画26本 = 計77ビジュアル</p></div>
+
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-10">
+        <h3 class="text-lg font-bold mb-4">🧩 機能タイプ別件数</h3>
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3"><div class="rounded-xl p-4 bg-white/[0.03] border border-white/10"><div class="text-sm text-white/60 mb-1">ビフォーアフター</div><div class="text-3xl font-black">1</div></div><div class="rounded-xl p-4 bg-white/[0.03] border border-white/10"><div class="text-sm text-white/60 mb-1">実績バッジ</div><div class="text-3xl font-black">2</div></div><div class="rounded-xl p-4 bg-white/[0.03] border border-white/10"><div class="text-sm text-white/60 mb-1">人物(感情)</div><div class="text-3xl font-black">8</div></div><div class="rounded-xl p-4 bg-white/[0.03] border border-white/10"><div class="text-sm text-white/60 mb-1">施術・機序シーン</div><div class="text-3xl font-black">7</div></div><div class="rounded-xl p-4 bg-white/[0.03] border border-white/10"><div class="text-sm text-white/60 mb-1">CTAボタン</div><div class="text-3xl font-black">4</div></div><div class="rounded-xl p-4 bg-white/[0.03] border border-white/10"><div class="text-sm text-white/60 mb-1">その他</div><div class="text-3xl font-black">55</div></div></div>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-6 mb-8">
-        <!-- 基本情報 -->
-        <div class="md:col-span-2 rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span>📌</span>訴求の核</h3>
-          <p class="text-white/90 leading-relaxed mb-4">当クリニックの治療は、ウィッグやサロンとは違い、医学的根拠に基づいて一人ひとりに合わせた処方を行うため、93.4%という高い実績であなたの髪の悩みを根本から解決できます。</p>
-          <div class="text-sm text-white/60 border-l-2 border-white/20 pl-3 italic">['「ここなら本当に髪が生えるかもしれない」', '「他の方法より確実で、自分に合っていそう」']</div>
-
-          <div class="mt-5 pt-5 border-t border-white/10">
-            <div class="flex flex-wrap gap-2"><span class="tag-chip px-2 py-1 rounded text-xs">解決提示 <span class="opacity-60">× 21</span></span><span class="tag-chip px-2 py-1 rounded text-xs">比較 <span class="opacity-60">× 5</span></span><span class="tag-chip px-2 py-1 rounded text-xs">作用機序 <span class="opacity-60">× 4</span></span></div>
-          </div>
-        </div>
-
-        <!-- スコアカード -->
-        <div class="rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3">📊 セクションスコア</h3>
-          <div class="space-y-3 text-sm">
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">総合スコア</span><span class="font-bold">0.64</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:55%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">役割強度</span><span class="font-bold">0.741</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:74%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">証拠密度</span><span class="font-bold">0.403</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:40%"></div></div>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-white/10 text-xs text-white/50 space-y-1">
-            <div class="flex justify-between"><span>📝 テキスト</span><span>16</span></div>
-            <div class="flex justify-between"><span>🖼 画像</span><span>14</span></div>
-            <div class="flex justify-between"><span>🎞 動画</span><span>0</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- N1 Persona -->
-      <div class="rounded-xl p-5 md:p-7 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>想定読者 N1</h3>
-        <div class="grid md:grid-cols-4 gap-4 text-sm">
-          <div><div class="text-white/50 text-xs mb-1">年齢層</div><div class="font-bold">30代後半～50代</div></div>
-          <div class="md:col-span-3"><div class="text-white/50 text-xs mb-1">置かれている状況</div><div>分け目が目立ったり、髪全体のボリュームが減ってきたと感じ、市販の育毛剤や美容院のヘッドスパなどを試したが、効果を実感できずにいる。ウィッグも検討したが、不自然さや手間が気になり踏み切れない。</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic text-white/80">「このまま薄くなっていったらどうしよう…」「クリニックは気になるけど、本当に効果があるのかな？高額じゃないかな？」</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">本当の欲求</div><div class="font-bold text-white">人の視線を気にせず、ヘアアレンジを楽しんだり、自信を持って外出したりできる、若々しい自分を取り戻したい。</div></div>
-        </div>
-      </div>
-
-      <!-- 売れる表現 Top3 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>💎</span>売れる表現 Top 3</h3>
-        <div class="grid md:grid-cols-3 gap-5">
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6688222/0928b01c-5794-4db1-978d-3ee115cbfb25.png" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">解決提示</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.8132</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">この画像は、AGA+スキンクリニック、ウィッグ、発毛サロンの3つの薄毛対策を「効果と変化」「治療中」「治療の根拠」の観点から比較した情報提供の表です。 AGA+スキンクリニック レディース
-ウィッグ
-発毛サロン
-効果と変化
-自毛が増えていくので
-気付かれにくい
-短期間でボリュームアップ
-するのが気付かれやすい
-リラクゼーション効果
-のみで、持続せず
-治療中
-月1回の来院と薬の服用
-毎日かつらの装着が必須
-月1.2回定期的に通っても
-効果が曖昧
-治療の根拠
-医学的根拠に基づいた治療
-医学的根拠に基</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7363</div><div>証拠密度 1.0</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6618095/6e65f267-6a46-45c5-86ca-df718e27a4ee.jpg" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">解決提示</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.7917</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">髪の悩みを抱える人に対し、発毛実感率93.4%を謳い、全国60院以上のクリニックで症状に合わせた発毛薬を処方することを促す広告画像です。 発毛実感率
-※1
-93.4%
-全国駅チカ
-※2
-60院以上
-髪のお悩みは
-ご相談ください
-あなたの症状に合わせて
-あなた専用の発毛薬を
-処方します。
-※3</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7675</div><div>証拠密度 0.6826</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6431403/f3ae2a79-c32c-420a-ba65-eb713af86c85.png" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">解決提示</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.7799</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">AGA + スキンクリニックでの5ヶ月間の治療による、41歳女性の薄毛改善のビフォーアフターを示す画像です。 41歳女性：治療期間 5ヶ月
+      <div class="mb-10"><div class="mb-8"><h4 class="text-sm font-bold text-white/80 mb-3">ビフォーアフター （Top 1）</h4><div class="grid md:grid-cols-3 gap-3"><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6431403/f3ae2a79-c32c-420a-ba65-eb713af86c85.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.7809</span></div><p class="text-white/60 line-clamp-2">41歳の女性がAGA+スキンクリニックで5ヶ月間の治療を受けた結果を示す、頭部のビフォーアフター画像です。 41歳女性
+治療期間 5ヶ月
 AGA + スキンクリニック
-レディース
-AGA + スキンクリニック
-レディース</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7802</div><div>証拠密度 1.0</div>
-          </div>
-        </div></div>
-      </div>
-
-      <!-- 視覚ハイライト -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🖼</span>ビジュアル訴求のハイライト</h3><div class="grid md:grid-cols-3 gap-4">
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6688222/0928b01c-5794-4db1-978d-3ee115cbfb25.png" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">解決提示</span><span class="ml-auto">0.8132</span></div>
-            <p class="text-white/60">この画像は、AGA+スキンクリニック、ウィッグ、発毛サロンの3つの薄毛対策を「効果と変化」「治療中」「治療の根拠」の観点から比較した情報提供の表です。 AGA+スキンクリニック レディース
-ウィッグ
-発毛サロン
-効果と変化
-自毛が増えていくので
-気付かれにくい
-短期間でボリュームアップ
-するのが気付</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6618095/6e65f267-6a46-45c5-86ca-df718e27a4ee.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">解決提示</span><span class="ml-auto">0.7917</span></div>
-            <p class="text-white/60">髪の悩みを抱える人に対し、発毛実感率93.4%を謳い、全国60院以上のクリニックで症状に合わせた発毛薬を処方することを促す広告画像です。 発毛実感率
-※1
-93.4%
-全国駅チカ
-※2
-60院以上
-髪のお悩みは
-ご相談ください
-あなたの症状に合わせて
-あなた専用の発毛薬を
-処方します。
-※3</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6431403/f3ae2a79-c32c-420a-ba65-eb713af86c85.png" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">解決提示</span><span class="ml-auto">0.7799</span></div>
-            <p class="text-white/60">AGA + スキンクリニックでの5ヶ月間の治療による、41歳女性の薄毛改善のビフォーアフターを示す画像です。 41歳女性：治療期間 5ヶ月
-AGA + スキンクリニック
-レディース
-AGA + スキンクリニック
-レディース</p>
-          </div>
-        </div></div></div>
-
-      <!-- 数値エビデンス -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🔢</span>このセクションの数値エビデンス</h3><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">93.4</span><span class="opacity-60 ml-1">%</span> <span class="opacity-40 ml-2">×7</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">5</span><span class="opacity-60 ml-1">月数</span> <span class="opacity-40 ml-2">×7</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">4</span><span class="opacity-60 ml-1">月数</span> <span class="opacity-40 ml-2">×4</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">5</span><span class="opacity-60 ml-1">%</span> <span class="opacity-40 ml-2">×3</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">1</span><span class="opacity-60 ml-1">人数</span> <span class="opacity-40 ml-2">×1</span></div></div></div>
-
-      <!-- 改善施策 -->
-      <div class="rounded-xl p-5 md:p-7 bg-amber-500/5 border border-amber-500/20 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-200"><span>⚡</span>改善施策</h3>
-        <ul class="text-white/80"><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>治療薬の有効成分が「なぜ、どのように」髪の成長を促すのか、イラストや図解を用いて作用機序（メカニズム）を分かりやすく解説するコンテンツを追加する。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>掲載されているビフォーアフター症例に、治療期間中の具体的な処方内容、総額費用、そして患者様本人の手書きコメントなどを加え、証拠の密度と信頼性を高める。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>治療を担当する医師の顔写真付きプロフィール（経歴、専門分野、治療への想いなど）を掲載し、専門家による治療であるという権威性・信頼性を強化する。</span></li></ul>
-      </div>
-    </div>
-    <div id="pane-proof" class="section-pane">
-      <!-- Section hero -->
-      <div class="rounded-2xl p-6 md:p-10 bg-gradient-proof text-black/80 mb-8">
-        <div class="flex items-center gap-3 text-xs font-bold mb-3 opacity-70">
-          <span>Trust</span><span>·</span><span>14チャンク</span>
-        </div>
-        <h2 class="text-3xl md:text-5xl font-black leading-tight mb-2">✅ 証拠 & 権威</h2>
-        <p class="text-lg md:text-xl opacity-80">なぜ信じられるか</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-6 mb-8">
-        <!-- 基本情報 -->
-        <div class="md:col-span-2 rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span>📌</span>訴求の核</h3>
-          <p class="text-white/90 leading-relaxed mb-4">当院は1,500万件という圧倒的な診療実績と専門家の知見があり、あなたと同じ悩みを持つ多くの女性が実際に発毛効果を実感している、信頼できるクリニックです。</p>
-          <div class="text-sm text-white/60 border-l-2 border-white/20 pl-3 italic">「こんなに実績があるなら信頼できるかも…」「この人も私と同じ悩みだったのに、こんなに変われるんだ！」</div>
-
-          <div class="mt-5 pt-5 border-t border-white/10">
-            <div class="flex flex-wrap gap-2"><span class="tag-chip px-2 py-1 rounded text-xs">権威性 <span class="opacity-60">× 4</span></span><span class="tag-chip px-2 py-1 rounded text-xs">社会的証明 <span class="opacity-60">× 4</span></span><span class="tag-chip px-2 py-1 rounded text-xs">体験談 <span class="opacity-60">× 3</span></span><span class="tag-chip px-2 py-1 rounded text-xs">ビジュアル証拠 <span class="opacity-60">× 2</span></span><span class="tag-chip px-2 py-1 rounded text-xs">FAQ <span class="opacity-60">× 1</span></span></div>
-          </div>
-        </div>
-
-        <!-- スコアカード -->
-        <div class="rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3">📊 セクションスコア</h3>
-          <div class="space-y-3 text-sm">
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">総合スコア</span><span class="font-bold">0.622</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:54%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">役割強度</span><span class="font-bold">0.725</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:72%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">証拠密度</span><span class="font-bold">0.413</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:41%"></div></div>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-white/10 text-xs text-white/50 space-y-1">
-            <div class="flex justify-between"><span>📝 テキスト</span><span>11</span></div>
-            <div class="flex justify-between"><span>🖼 画像</span><span>3</span></div>
-            <div class="flex justify-between"><span>🎞 動画</span><span>0</span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- N1 Persona -->
-      <div class="rounded-xl p-5 md:p-7 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>想定読者 N1</h3>
-        <div class="grid md:grid-cols-4 gap-4 text-sm">
-          <div><div class="text-white/50 text-xs mb-1">年齢層</div><div class="font-bold">30代後半〜40代</div></div>
-          <div class="md:col-span-3"><div class="text-white/50 text-xs mb-1">置かれている状況</div><div>シャワー後の抜け毛が増え、分け目が目立つようになり、人の目が気になって外出時に帽子が手放せない。</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic text-white/80">「このままどんどん薄くなったらどうしよう…誰にも相談できないし、もう元には戻らないのかな…」</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">本当の欲求</div><div class="font-bold text-white">薄毛の悩みから解放され、自信を取り戻し、おしゃれや人との交流を心から楽しみたい。</div></div>
-        </div>
-      </div>
-
-      <!-- 売れる表現 Top3 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>💎</span>売れる表現 Top 3</h3>
-        <div class="grid md:grid-cols-3 gap-5">
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6777167/cc56ae99-804c-4874-a19e-a87845e8f689.jpg" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">社会的証明</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.8188</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">金色の月桂冠の中に「診療実績 1,500万件 ※1」と書かれており、1500万件の医療実績があることを示しています。 診療実績
+レディース</p></div></div></div></div><div class="mb-8"><h4 class="text-sm font-bold text-white/80 mb-3">実績バッジ （Top 2）</h4><div class="grid md:grid-cols-3 gap-3"><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6777167/cc56ae99-804c-4874-a19e-a87845e8f689.jpg" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.8211</span></div><p class="text-white/60 line-clamp-2">金色の月桂冠の中に「診療実績 1,500万件」と書かれており、1500万件の医療実績があることを示しています。 診療実績
 1,500
 万件
-※1</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7129</div><div>証拠密度 1.0</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6431393/2dde897d-a004-4e92-9cc2-c460156ef778.png" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">ビジュアル証拠</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.7675</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">36歳の女性がAGAスキンクリニックで4ヶ月間の治療を受けた前後の頭皮の状態を比較した画像で、治療による髪の改善を示しています。 36歳女性
-治療期間 4ヶ月
+※1</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4453431/207a3df6-7898-48e7-b6ba-1192f024d5a7.webp" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.8127</span></div><p class="text-white/60 line-clamp-2">この画像は、AGAスキンクリニックおよび提携院における延べ女性患者数が10年間で333倍に増加したことを示す棒グラフです。 AGAスキンクリニック・提携院での
+延べ女性患者さま人数
+10年で
+333倍
+220
+7,247
+21,498
+48</p></div></div></div></div><div class="mb-8"><h4 class="text-sm font-bold text-white/80 mb-3">人物(感情) （Top 3）</h4><div class="grid md:grid-cols-3 gap-3"><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6529373/83c9b78e-10ce-4219-a602-5a600983a3dc.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.8429</span></div><p class="text-white/60 line-clamp-2">笑顔の女性が、AGAスキンクリニックの薄毛・抜毛治療におけるレディース向け対面診療を宣伝している画像です。 薄毛・抜毛治療なら
+AGAスキンクリニックの
+対面診療
 AGA + スキンクリニック
-レディース</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7251</div><div>証拠密度 1.0</div>
-          </div>
-        </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">権威性</span>
-            <span class="tag-chip px-2 py-0.5 rounded">text</span>
-            <span class="ml-auto text-white/40">score 0.7281</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">※画像はイメージです 「シャワーの後の抜け毛が気になる」 「外出するときは帽子が必須」</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7437</div><div>証拠密度 0.6667</div>
-          </div>
-        </div></div>
+レディース</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/5327578/0f1b72b3-5aea-4686-8711-9795ba884acc.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.7109</span></div><p class="text-white/60 line-clamp-2">この画像は、30秒で完了する予約プロセスの3つのステップ（個人情報の入力、クリニックと日時の選択、電話またはメールでの予約確定）を説明するインフォグラフィックです。 予約は30秒で完了！
+1
+氏名・電話番号など
+必須項目を入力
+必須 お名前</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/5327578/0f1b72b3-5aea-4686-8711-9795ba884acc.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.6448</span></div><p class="text-white/60 line-clamp-2">この画像は、氏名・電話番号などの入力、クリニックと来院日時の選択、電話またはメールでの予約確定という3つのステップで、30秒で完了する予約プロセスを説明しています。 予約は30秒で完了!
+1
+氏名・電話番号など
+必須項目を入力
+必須 お名前</p></div></div></div></div><div class="mb-8"><h4 class="text-sm font-bold text-white/80 mb-3">施術・機序シーン （Top 3）</h4><div class="grid md:grid-cols-3 gap-3"><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6543065/843e1fa6-dcc2-4e3c-b6ce-8b478a8414fe.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.7725</span></div><p class="text-white/60 line-clamp-2">カウンセリング、初診、頭皮チェック、血液検査の3つのサービスがすべて0円であることを示す画像です。 カウンセリング含めすべて0円！※
+初診
+頭皮チェック
+血液検査</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4938013/5330ff81-3671-4de0-a992-2da64aaf8b9e.jpg" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.6977</span></div><p class="text-white/60 line-clamp-2">AGAスキンクリニックからの告知で、無断キャンセルをしないよう呼びかけ、無断キャンセルがあった場合は今後の予約ができなくなる可能性があること、事前に予約変更の連絡をするよう促し、連絡先（メールアドレスと電話番号）が記載されています。 AGA</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4938013/5330ff81-3671-4de0-a992-2da64aaf8b9e.jpg" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.6402</span></div><p class="text-white/60 line-clamp-2">AGAスキンクリニックからの告知で、無断キャンセルをしないよう呼びかけ、無断キャンセルをした場合は今後の予約ができなくなる可能性があること、事前に予約変更の連絡をするよう促し、連絡先（メールアドレスと電話番号）が記載されています。 AGAス</p></div></div></div></div><div class="mb-8"><h4 class="text-sm font-bold text-white/80 mb-3">CTAボタン （Top 3）</h4><div class="grid md:grid-cols-3 gap-3"><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6781077/cfee51c6-10b5-4913-bac4-7b6416467772.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.7791</span></div><p class="text-white/60 line-clamp-2">AGAスキンクリニックが初めての方向けに、薄毛治療の匿名モニターを募集しており、無料カウンセリングを促すバナー画像です。 AGAスキンクリニックが初めての方限定
+薄毛治療の匿名モニター募集中！
+無料カウンセリングはこちら</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6781077/cfee51c6-10b5-4913-bac4-7b6416467772.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.665</span></div><p class="text-white/60 line-clamp-2">AGAスキンクリニックが初めての方限定で、薄毛治療の匿名モニターを募集しており、無料カウンセリングを促す緑色のボタン画像です。 AGAスキンクリニックが初めての方限定
+薄毛治療の匿名モニター募集中！
+無料カウンセリングはこちら</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.6058</span></div><p class="text-white/60 line-clamp-2">[ocr_error:ServerError]</p></div></div></div></div><div class="mb-8"><h4 class="text-sm font-bold text-white/80 mb-3">その他 （Top 3）</h4><div class="grid md:grid-cols-3 gap-3"><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4179103/7b6f3c8f-7d3f-406e-ba9b-132260ad2a9d.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.6651</span></div><p class="text-white/60 line-clamp-2">複数の日本の10,000円札が扇状に広げられており、お金や富を表現しています。 10000
+壱万円</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4623397/d30faae2-68a3-4e11-96a1-8f86756a1a57.png" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">image</span><span>0.63</span></div><p class="text-white/60 line-clamp-2">仮予約後の内容確認のための連絡先（電話番号とメールアドレス）が記載された画像です。 仮予約後に内容確認の
+ご連絡をさせて頂いております。
+0120-820-417
+info@agaskin-woman.jp</p></div></div><div class="visual-card rounded-lg overflow-hidden bg-white/5 border border-white/10"><div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6782379/1413f404-919a-4475-b883-c2e768ba2f3c.mp4" alt="" class="w-full h-full object-cover" loading="lazy"></div><div class="p-2 text-xs text-white/70"><div class="flex justify-between mb-1"><span class="tag-chip px-2 py-0.5 rounded">video</span><span>0.6147</span></div><p class="text-white/60 line-clamp-2"></p></div></div></div></div></div>
+
+      
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-3 flex items-center gap-2"><span>📌</span>このレンズが教えてくれること</h3>
+        <p class="text-white/90 leading-relaxed">このLPは、実績や権威性を示すバッジ画像と、笑顔の人物写真で安心感を醸成し、読者の不安を払拭するビジュアル戦略を採っています。一方で、治療効果を直接示すビフォーアフターの活用は限定的です。</p>
       </div>
 
-      <!-- 視覚ハイライト -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🖼</span>ビジュアル訴求のハイライト</h3><div class="grid md:grid-cols-3 gap-4">
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6777167/cc56ae99-804c-4874-a19e-a87845e8f689.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">社会的証明</span><span class="ml-auto">0.8188</span></div>
-            <p class="text-white/60">金色の月桂冠の中に「診療実績 1,500万件 ※1」と書かれており、1500万件の医療実績があることを示しています。 診療実績
-1,500
-万件
-※1</p>
-          </div>
+      <div class="rounded-xl p-6 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>N1インサイト</h3>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div><div class="text-white/50 text-xs mb-1">誰の心が動くか</div><div>薄毛に悩み始めたものの、どのクリニックも同じに見えて決めかねている40代前後の女性。特に、効果だけでなく信頼性や実績を重視する慎重なタイプ。</div></div>
+          <div><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic">「1,500万件も実績があるなら信頼できそう…」「なんだか相談しやすそう。話だけでも聞いてみようかな」</div></div>
+          <div><div class="text-white/50 text-xs mb-1">なぜ刺さるか</div><div>テキストで読むより先に、金色の月桂冠で飾られた「実績バッジ」や具体的な「症例グラフ」が視覚的に飛び込んでくるため、瞬時に信頼性が刷り込まれます。また、笑顔の女性モデルの写真は、治療後のポジティブな未来を直感的に想像させ、心理的な予約ハードルを下げています。</div></div>
         </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6431393/2dde897d-a004-4e92-9cc2-c460156ef778.png" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">ビジュアル証拠</span><span class="ml-auto">0.7675</span></div>
-            <p class="text-white/60">36歳の女性がAGAスキンクリニックで4ヶ月間の治療を受けた前後の頭皮の状態を比較した画像で、治療による髪の改善を示しています。 36歳女性
-治療期間 4ヶ月
-AGA + スキンクリニック
-レディース</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/4179103/7b6f3c8f-7d3f-406e-ba9b-132260ad2a9d.png" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">社会的証明</span><span class="ml-auto">0.6614</span></div>
-            <p class="text-white/60">白い背景に日本の10,000円札が複数枚扇状に広げられている画像です。 10000
-壱万円</p>
-          </div>
-        </div></div></div>
-
-      <!-- 数値エビデンス -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🔢</span>このセクションの数値エビデンス</h3><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">1,500</span><span class="opacity-60 ml-1">金額(万)</span> <span class="opacity-40 ml-2">×6</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">4</span><span class="opacity-60 ml-1">月数</span> <span class="opacity-40 ml-2">×6</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">1500</span><span class="opacity-60 ml-1">金額(万)</span> <span class="opacity-40 ml-2">×3</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">25</span><span class="opacity-60 ml-1">年</span> <span class="opacity-40 ml-2">×1</span></div></div></div>
-
-      <!-- 改善施策 -->
-      <div class="rounded-xl p-5 md:p-7 bg-amber-500/5 border border-amber-500/20 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-200"><span>⚡</span>改善施策</h3>
-        <ul class="text-white/80"><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>「治療満足度〇%」や「〇人に1人が当院を選択」など、信頼性を裏付ける具体的な数値をグラフ等で視覚的に追加し、証拠の密度を高める。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>30代、40代、50代といった年代別や、悩み（分け目・頭頂部など）別のビフォーアフター付き体験談を複数掲載し、読者が「自分のことだ」と感じられる事例を増やす。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>「治療の痛みは？」「副作用は？」「本当にこの金額で済む？」といった、読者が契約前に抱くであろう不安や疑問に答えるFAQセクションを大幅に拡充する。</span></li></ul>
       </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="rounded-xl p-6 bg-emerald-500/5 border border-emerald-500/20">
+          <h3 class="text-lg font-bold mb-3 text-emerald-200 flex items-center gap-2"><span>💎</span>勝ちパターン</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-emerald-300">▸</span><span>抽象的な権威性（例：実績多数）を、具体的な数字と権威の象徴（月桂冠、グラフ）を組み合わせた『実績バッジ画像』で視覚的に証明する。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>治療や手続きの不安に対し、笑顔の人物写真や簡略化されたフロー図を用いて『簡単さ』と『安心感』を直感的に伝え、心理的ハードルを下げる。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>自分ごと化しやすい年齢・期間を明記した『ビフォーアフター写真』を提示し、治療効果への期待感を最大化させる。</span></li>
+          </ul>
+        </div>
+        <div class="rounded-xl p-6 bg-amber-500/5 border border-amber-500/20">
+          <h3 class="text-lg font-bold mb-3 text-amber-200 flex items-center gap-2"><span>⚡</span>改善施策</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】「ビフォーアフター」画像のバリエーションを追加する。データ上1件しかないため、30代・50代など異なる年代や、様々な薄毛の進行度の症例を複数見せ、より多くの読者が自分ごと化できるようにする。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】実際の「施術シーン」の画像や短い動画を追加する。医師がマイクロスコープで頭皮をチェックしている様子や、使用する機材の写真などを具体的に見せ、治療内容の透明性を高め、未知の施術への恐怖心を和らげる。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【再設計】記事冒頭部分に、悩んでいる表情の女性の画像を追加する。読者の「そうそう、私もこんな風に悩んでる…」という共感をビジュアルで引き出し、その後の解決策（笑顔の女性やビフォーアフター）への没入感を高める。</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-5 bg-blue-500/5 border border-blue-500/20 mb-6"><h4 class="text-sm font-bold text-blue-200 mb-2">💡 このレンズ固有の気づき</h4><p class="text-sm text-white/80">全77のビジュアルのうち55が「その他」に分類されている点は重要です。これは、LPが多くの画像を使用しているものの、その多くが「実績証明」や「感情喚起」といった明確なマーケティング機能を持たず、単なる説明補助や装飾に留まっている可能性を示唆しています。ビジュアルの「量」だけでなく「質」と「役割」の最適化に大きな改善余地があります。</p></div>
+    
     </div>
-    <div id="pane-close" class="section-pane">
-      <!-- Section hero -->
-      <div class="rounded-2xl p-6 md:p-10 bg-gradient-close text-black/80 mb-8">
-        <div class="flex items-center gap-3 text-xs font-bold mb-3 opacity-70">
-          <span>Conversion</span><span>·</span><span>78チャンク</span>
+    <div id="pane-evidence" class="section-pane">
+      <div class="rounded-2xl p-6 md:p-10 mb-8" style="background:linear-gradient(135deg,#43E97B 0%,#38F9D7 100%);color:#000;"><h2 class="text-3xl md:text-5xl font-black mb-2">🔢 エビデンス・権威マップ</h2><p class="text-lg md:text-xl opacity-80 mb-1">数値・実績・バッジ・引用の集約地図</p><p class="text-sm opacity-60">LP内で繰り返し出てくる「数字」と「権威語」の集約</p></div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-10">
+        <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10">
+          <h3 class="text-lg font-bold mb-4">🔢 数値エビデンス</h3>
+          <div class="mb-6"><h4 class="text-xs uppercase text-white/50 mb-2">件数</h4><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">1,500</span><span class="text-white/50 ml-1 text-xs">×4</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">1500</span><span class="text-white/50 ml-1 text-xs">×2</span></div></div></div><div class="mb-6"><h4 class="text-xs uppercase text-white/50 mb-2">円</h4><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">0</span><span class="text-white/50 ml-1 text-xs">×4</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">5000</span><span class="text-white/50 ml-1 text-xs">×2</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">500</span><span class="text-white/50 ml-1 text-xs">×2</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">63,400</span><span class="text-white/50 ml-1 text-xs">×2</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">95,600</span><span class="text-white/50 ml-1 text-xs">×2</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">10,000</span><span class="text-white/50 ml-1 text-xs">×2</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">5,500</span><span class="text-white/50 ml-1 text-xs">×1</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">253,600</span><span class="text-white/50 ml-1 text-xs">×1</span></div></div></div><div class="mb-6"><h4 class="text-xs uppercase text-white/50 mb-2">年</h4><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">25</span><span class="text-white/50 ml-1 text-xs">×1</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">23</span><span class="text-white/50 ml-1 text-xs">×1</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">24</span><span class="text-white/50 ml-1 text-xs">×1</span></div></div></div><div class="mb-6"><h4 class="text-xs uppercase text-white/50 mb-2">%</h4><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">93.4</span><span class="text-white/50 ml-1 text-xs">×1</span></div></div></div><div class="mb-6"><h4 class="text-xs uppercase text-white/50 mb-2">利用者数</h4><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">3,307</span><span class="text-white/50 ml-1 text-xs">×1</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">1</span><span class="text-white/50 ml-1 text-xs">×1</span></div></div></div><div class="mb-6"><h4 class="text-xs uppercase text-white/50 mb-2">期間(月)</h4><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">5</span><span class="text-white/50 ml-1 text-xs">×5</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">6</span><span class="text-white/50 ml-1 text-xs">×1</span></div><div class="tag-chip px-3 py-2 rounded-lg text-sm"><span class="font-black">4</span><span class="text-white/50 ml-1 text-xs">×1</span></div></div></div>
         </div>
-        <h2 class="text-3xl md:text-5xl font-black leading-tight mb-2">🚀 安心 & 行動喚起</h2>
-        <p class="text-lg md:text-xl opacity-80">最後の背中押し</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-6 mb-8">
-        <!-- 基本情報 -->
-        <div class="md:col-span-2 rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3 flex items-center gap-2"><span>📌</span>訴求の核</h3>
-          <p class="text-white/90 leading-relaxed mb-4">このクリニックの無料カウンセリングは、無理な勧誘の心配なく、たった30秒で簡単に予約できるので、安心して薄毛治療の第一歩を踏み出してください。</p>
-          <div class="text-sm text-white/60 border-l-2 border-white/20 pl-3 italic">「話を聞くだけでも大丈夫かな…？」「しつこく勧誘されたり、高額な契約を迫られたりしたらどうしよう…」</div>
-
-          <div class="mt-5 pt-5 border-t border-white/10">
-            <div class="flex flex-wrap gap-2"><span class="tag-chip px-2 py-1 rounded text-xs">行動喚起 <span class="opacity-60">× 48</span></span><span class="tag-chip px-2 py-1 rounded text-xs">保証・安心 <span class="opacity-60">× 19</span></span><span class="tag-chip px-2 py-1 rounded text-xs">ベネフィット <span class="opacity-60">× 7</span></span><span class="tag-chip px-2 py-1 rounded text-xs">希少性 <span class="opacity-60">× 3</span></span><span class="tag-chip px-2 py-1 rounded text-xs">反論処理 <span class="opacity-60">× 1</span></span></div>
-          </div>
-        </div>
-
-        <!-- スコアカード -->
-        <div class="rounded-xl p-5 bg-white/[0.03] border border-white/10">
-          <h3 class="text-lg font-bold mb-3">📊 セクションスコア</h3>
-          <div class="space-y-3 text-sm">
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">総合スコア</span><span class="font-bold">0.579</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:50%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">役割強度</span><span class="font-bold">0.679</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:67%"></div></div>
-            </div>
-            <div>
-              <div class="flex justify-between mb-1"><span class="text-white/70">証拠密度</span><span class="font-bold">0.065</span></div>
-              <div class="w-full bg-white/5 rounded-full overflow-hidden"><div class="score-bar" style="width:6%"></div></div>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-white/10 text-xs text-white/50 space-y-1">
-            <div class="flex justify-between"><span>📝 テキスト</span><span>36</span></div>
-            <div class="flex justify-between"><span>🖼 画像</span><span>16</span></div>
-            <div class="flex justify-between"><span>🎞 動画</span><span>26</span></div>
-          </div>
+        <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10">
+          <h3 class="text-lg font-bold mb-4">🎓 権威語・信頼シグナル</h3>
+          <div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">モニター ×19</div><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">カウンセリング ×18</div><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">医師 ×8</div><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">血液検査 ×6</div><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">提携院 ×5</div><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">毛髪診断士 ×1</div><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">医学 ×1</div><div class="tag-chip px-3 py-1.5 rounded-lg text-sm">マイクロスコープ ×1</div></div>
         </div>
       </div>
 
-      <!-- N1 Persona -->
-      <div class="rounded-xl p-5 md:p-7 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>想定読者 N1</h3>
-        <div class="grid md:grid-cols-4 gap-4 text-sm">
-          <div><div class="text-white/50 text-xs mb-1">年齢層</div><div class="font-bold">30代後半～50代</div></div>
-          <div class="md:col-span-3"><div class="text-white/50 text-xs mb-1">置かれている状況</div><div>最近、シャンプー後の抜け毛や分け目の地肌が目立つようになり、人の視線が気になり始めた。</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic text-white/80">「このままどんどん薄くなったらどうしよう…もう歳だから仕方ないのかな…」</div></div>
-          <div class="md:col-span-2"><div class="text-white/50 text-xs mb-1">本当の欲求</div><div class="font-bold text-white">「髪の悩みを気にせず、自信を持ってオシャレや外出を楽しめる毎日を取り戻したい」</div></div>
+      
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-3 flex items-center gap-2"><span>📌</span>このレンズが教えてくれること</h3>
+        <p class="text-white/90 leading-relaxed">このLPは、具体的な数値実績と「医師」などの専門家の権威を多用することで、読者が抱く効果や費用への不安を払拭し、サービスの信頼性を客観的に訴求する構成になっています。</p>
+      </div>
+
+      <div class="rounded-xl p-6 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>N1インサイト</h3>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div><div class="text-white/50 text-xs mb-1">誰の心が動くか</div><div>治療に失敗したくない30代〜40代の女性。ネットの口コミよりも、客観的なデータや専門家の意見を重視して、慎重にクリニックを選びたいと考えている人。</div></div>
+          <div><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic">['これだけ実績があるなら安心かも…', '専門の先生がしっかり見てくれるなら、ちゃんと相談できそう']</div></div>
+          <div><div class="text-white/50 text-xs mb-1">なぜ刺さるか</div><div>薄毛治療への「本当に効くの？」「高額なのでは？」という根源的な不安に対し、「実績1,500件」「医師による診断」「カウンセリング0円」といった具体的な数値と権威性が、疑問に対する直接的な回答となり、安心感と納得感を与えているためです。</div></div>
         </div>
       </div>
 
-      <!-- 売れる表現 Top3 -->
-      <div class="mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>💎</span>売れる表現 Top 3</h3>
-        <div class="grid md:grid-cols-3 gap-5">
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_header_photo/photo/54376/18abeb24-fcda-45e1-9596-612fca3971fe.jpg" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">保証・安心</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.8397</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">AGAスキンクリニックの、初めて予約する方向けの限定ページであることを示すバナー画像です。 AGAスキンクリニックに
-初めてご予約される方限定ページです</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7493</div><div>証拠密度 0.8715</div>
-          </div>
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="rounded-xl p-6 bg-emerald-500/5 border border-emerald-500/20">
+          <h3 class="text-lg font-bold mb-3 text-emerald-200 flex items-center gap-2"><span>💎</span>勝ちパターン</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-emerald-300">▸</span><span>「実績〇件」「〇年の歴史」のように、具体的な数字を冒頭近くで提示し、サービスの信頼性を第一印象で決定づける。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>「医師」「毛髪診断士」「マイクロスコープ」といった専門家・専門機器のキーワードを散りばめ、サービスの専門性の高さを多角的に証明する。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>「カウンセリング0円」で心理的ハードルを下げつつ、具体的なプラン料金を明示することで、読者の金銭的な不安を先回りして解消する。</span></li>
+          </ul>
         </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">保証・安心</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.8128</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">「1年以内に来院していない方限定」で、フサフサ髪を目指せる薄毛治療のカウンセリング予約を促す赤いボタンと、自由診療に関する注意書きが記載されています。 【1年以内にご来院されていない方限定】
-フサフサ髪を目指せる薄毛治療／
-カウンセリングを予約する
-※自由診療/保険適用外
-※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.7232</div><div>証拠密度 0.747</div>
-          </div>
+        <div class="rounded-xl p-6 bg-amber-500/5 border border-amber-500/20">
+          <h3 class="text-lg font-bold mb-3 text-amber-200 flex items-center gap-2"><span>⚡</span>改善施策</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】「医師」という言葉だけでなく、監修医師の顔写真、経歴、専門分野を具体的に掲載し、権威に「人格」を与えて信頼感を高める。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【再設計】「93.4%」のような満足度や実績の数値に、「※2023年自社アンケート調査」といった出典や調査の前提条件を注釈で加え、数値の信頼性を補強する。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】治療法に関する医学論文や学会での発表実績、または第三者機関からの認証など、クリニック外部の客観的な権威からの評価を引用・掲載し、信頼性をさらに高める。</span></li>
+          </ul>
         </div>
-        <div class="expr-card rounded-xl p-4 md:p-5">
-          <img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6543065/843e1fa6-dcc2-4e3c-b6ce-8b478a8414fe.png" alt="" class="rounded-lg mb-3 w-full max-h-48 object-cover">
-          <div class="flex items-center gap-2 mb-2 text-xs">
-            <span class="tag-chip px-2 py-0.5 rounded">保証・安心</span>
-            <span class="tag-chip px-2 py-0.5 rounded">image</span>
-            <span class="ml-auto text-white/40">score 0.7135</span>
-          </div>
-          <p class="text-sm md:text-base text-white/90 leading-relaxed">この画像は、カウンセリング、初診、頭皮チェック、血液検査を含むすべてのサービスが0円であることを示す広告で、それぞれのサービス内容を写真で紹介しています。 カウンセリング含めすべて0円！※
-初診
-頭皮チェック
-血液検査</p>
-          <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-white/50">
-            <div>役割強度 0.73</div><div>証拠密度 0.6088</div>
-          </div>
-        </div></div>
       </div>
 
-      <!-- 視覚ハイライト -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🖼</span>ビジュアル訴求のハイライト</h3><div class="grid md:grid-cols-3 gap-4">
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_header_photo/photo/54376/18abeb24-fcda-45e1-9596-612fca3971fe.jpg" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">保証・安心</span><span class="ml-auto">0.8397</span></div>
-            <p class="text-white/60">AGAスキンクリニックの、初めて予約する方向けの限定ページであることを示すバナー画像です。 AGAスキンクリニックに
-初めてご予約される方限定ページです</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">保証・安心</span><span class="ml-auto">0.8128</span></div>
-            <p class="text-white/60">「1年以内に来院していない方限定」で、フサフサ髪を目指せる薄毛治療のカウンセリング予約を促す赤いボタンと、自由診療に関する注意書きが記載されています。 【1年以内にご来院されていない方限定】
-フサフサ髪を目指せる薄毛治療／
-カウンセリングを予約する
-※自由診療/保険適用外
-※医師の判断により治療を受</p>
-          </div>
-        </div>
-        <div class="visual-card rounded-xl overflow-hidden bg-white/5 border border-white/10">
-          <div class="aspect-video overflow-hidden bg-black"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6543065/843e1fa6-dcc2-4e3c-b6ce-8b478a8414fe.png" alt="" class="w-full h-full object-cover"></div>
-          <div class="p-3 text-xs text-white/70">
-            <div class="flex items-center gap-2 mb-1"><span class="tag-chip px-2 py-0.5 rounded">保証・安心</span><span class="ml-auto">0.7135</span></div>
-            <p class="text-white/60">この画像は、カウンセリング、初診、頭皮チェック、血液検査を含むすべてのサービスが0円であることを示す広告で、それぞれのサービス内容を写真で紹介しています。 カウンセリング含めすべて0円！※
-初診
-頭皮チェック
-血液検査</p>
-          </div>
-        </div></div></div>
+      <div class="rounded-xl p-5 bg-blue-500/5 border border-blue-500/20 mb-6"><h4 class="text-sm font-bold text-blue-200 mb-2">💡 このレンズ固有の気づき</h4><p class="text-sm text-white/80">「医師」(8回)という絶対的な権威よりも、「モニター」(19回)や「カウンセリング」(18回)という、読者に近い目線や対話の機会を示す言葉が多用されている。これは、専門性を盾にするだけでなく、読者の不安に寄り添い、相談へのハードルを下げるというコミュニケーション設計の意図を強く示唆している。</p></div>
+    
+    </div>
+    <div id="pane-cta" class="section-pane">
+      <div class="rounded-2xl p-6 md:p-10 mb-8" style="background:linear-gradient(135deg,#F7971E 0%,#FFD200 100%);color:#000;"><h2 class="text-3xl md:text-5xl font-black mb-2">🎯 CTA動線分析</h2><p class="text-lg md:text-xl opacity-80 mb-1">実際のCTAボタン（リンク付き）の配置と文言</p><p class="text-sm opacity-60">実CTAボタン: 4件（リンク先あり）｜クリック可能要素全体: 5件</p></div>
 
-      <!-- 数値エビデンス -->
-      <div class="mb-8"><h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>🔢</span>このセクションの数値エビデンス</h3><div class="flex flex-wrap gap-2"><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">307</span><span class="opacity-60 ml-1">人数</span> <span class="opacity-40 ml-2">×1</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">6</span><span class="opacity-60 ml-1">月数</span> <span class="opacity-40 ml-2">×1</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">23</span><span class="opacity-60 ml-1">年</span> <span class="opacity-40 ml-2">×1</span></div><div class="tag-chip px-3 py-1.5 rounded-lg text-xs"><span class="font-bold">24</span><span class="opacity-60 ml-1">年</span> <span class="opacity-40 ml-2">×1</span></div></div></div>
-
-      <!-- 改善施策 -->
-      <div class="rounded-xl p-5 md:p-7 bg-amber-500/5 border border-amber-500/20 mb-8">
-        <h3 class="text-xl font-bold mb-4 flex items-center gap-2 text-amber-200"><span>⚡</span>改善施策</h3>
-        <ul class="text-white/80"><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>予約ボタンの直前に「よくあるご質問」コーナーを設け、『治療の総額は？』『副作用は？』といった金銭面や身体的な不安に対する反論処理を強化する。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>行動喚起（CTA）の近くに、治療後の明るい未来を具体的にイメージさせるお客様の声（例：「鏡を見るのが楽しくなった」）を一行追加し、感情的なベネフィットを再訴求する。</span></li><li class="mb-2 flex gap-2"><span class="text-amber-300">▸</span><span>「今月限定の無料カウンセリング枠は残りわずかです」のように、具体的な期間や人数を提示して希少性を高め、予約を先延ばしにさせない工夫を施す。</span></li></ul>
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-lg font-bold">🧭 LP上のCTA配置</h3>
+          <span class="text-xs text-white/50">←開始　　　　　　　　 終了→</span>
+        </div>
+        <div class="relative h-8 bg-white/5 rounded-full"><div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-amber-400 ring-4 ring-amber-400/30" style="left:40.1%" title="Order 1"></div><div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-amber-400 ring-4 ring-amber-400/30" style="left:86.0%" title="Order 2"></div><div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-amber-400 ring-4 ring-amber-400/30" style="left:97.5%" title="Order 3"></div><div class="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-amber-400 ring-4 ring-amber-400/30" style="left:100.0%" title="Order 4"></div></div>
       </div>
+
+      <div class="rounded-xl p-5 bg-amber-500/5 border border-amber-500/20 mb-8">
+        <p class="text-sm text-amber-200">
+          <span class="font-bold">📘 CTAの定義:</span>
+          本ポートフォリオでは<strong>「&lt;a href&gt;付きで、画像を包むか/短い行動文言(予約/申込等)/ボタン系スタイル」</strong>のみを「真のCTA」と判定。
+          店舗名リンクや利用規約リンクは除外。画像上にCTA風テキストがあってもリンク先が無ければCTAではない。
+        </p>
+      </div>
+
+      <h3 class="text-xl font-bold mb-4">🎯 検出された実CTA一覧</h3>
+      <div class="grid md:grid-cols-2 gap-4 mb-10"><div class="expr-card rounded-xl p-4"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6781077/cfee51c6-10b5-4913-bac4-7b6416467772.png" alt="" class="w-full rounded mb-3 max-h-40 object-contain bg-white/5" loading="lazy"><div class="flex items-center justify-between text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">image</span><span class="text-white/40">position: 40.1%</span></div><p class="text-sm text-white/90">AGAスキンクリニックが初めての方限定で、薄毛治療の匿名モニターを募集しており、無料カウンセリングを促す緑色のボタン画像です。 AGAスキンクリニックが初めての方限定
+薄毛治療の匿名モニター募集中！
+無料カウンセリングはこちら</p><div class="mt-2 pt-2 border-t border-white/5 text-xs text-white/40 truncate">→ https://ac.ad-discovery365.com/cl/ce0Fb53e8536cbdb/?bid=9d65...</div></div><div class="expr-card rounded-xl p-4"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6781077/cfee51c6-10b5-4913-bac4-7b6416467772.png" alt="" class="w-full rounded mb-3 max-h-40 object-contain bg-white/5" loading="lazy"><div class="flex items-center justify-between text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">image</span><span class="text-white/40">position: 86.0%</span></div><p class="text-sm text-white/90">[ocr_error:ServerError]</p><div class="mt-2 pt-2 border-t border-white/5 text-xs text-white/40 truncate">→ https://ac.ad-discovery365.com/cl/ce0Fb53e8536cbdb/?bid=9d65...</div></div><div class="expr-card rounded-xl p-4"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6781077/cfee51c6-10b5-4913-bac4-7b6416467772.png" alt="" class="w-full rounded mb-3 max-h-40 object-contain bg-white/5" loading="lazy"><div class="flex items-center justify-between text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">image</span><span class="text-white/40">position: 97.5%</span></div><p class="text-sm text-white/90">AGAスキンクリニックが初めての方向けに、薄毛治療の匿名モニターを募集しており、無料カウンセリングを促すバナー画像です。 AGAスキンクリニックが初めての方限定
+薄毛治療の匿名モニター募集中！
+無料カウンセリングはこちら</p><div class="mt-2 pt-2 border-t border-white/5 text-xs text-white/40 truncate">→ https://ac.ad-discovery365.com/cl/ce0Fb53e8536cbdb/?bid=9d65...</div></div><div class="expr-card rounded-xl p-4"><img src="https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png" alt="" class="w-full rounded mb-3 max-h-40 object-contain bg-white/5" loading="lazy"><div class="flex items-center justify-between text-xs mb-2"><span class="tag-chip px-2 py-0.5 rounded">image</span><span class="text-white/40">position: 100.0%</span></div><p class="text-sm text-white/90">[ocr_error:ServerError]</p><div class="mt-2 pt-2 border-t border-white/5 text-xs text-white/40 truncate">→ https://ac.ad-discovery365.com/cl/ce0Fb53e8536cbdb/?bid=9d65...</div></div></div>
+
+      
+      <div class="rounded-xl p-6 bg-white/[0.03] border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-3 flex items-center gap-2"><span>📌</span>このレンズが教えてくれること</h3>
+        <p class="text-white/90 leading-relaxed">この記事LPは、中盤以降に関心が高まった読者に対し、同じ内容の画像CTAを終盤にかけて繰り返し提示することで、迷っているユーザーの背中を押してコンバージョンを狙う設計になっています。</p>
+      </div>
+
+      <div class="rounded-xl p-6 bg-gradient-to-br from-fuchsia-500/10 to-amber-500/5 border border-white/10 mb-6">
+        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><span>👤</span>N1インサイト</h3>
+        <div class="grid md:grid-cols-3 gap-4 text-sm">
+          <div><div class="text-white/50 text-xs mb-1">誰の心が動くか</div><div>薄毛に悩み、記事を読んで治療への関心が高まったものの、費用面で一歩踏み出せずにいる30〜40代の女性。特にクリニックでの治療が初めての方。</div></div>
+          <div><div class="text-white/50 text-xs mb-1">心の声</div><div class="italic">「モニターならお得に試せるかも…」「無料なら、とりあえず話だけでも聞いてみようかな。」</div></div>
+          <div><div class="text-white/50 text-xs mb-1">なぜ刺さるか</div><div>記事を読み進めて悩みや解決策への理解が深まった中盤（40%地点）で最初のCTAを提示し、意思決定段階の終盤（86%以降）で畳み掛ける配置が効果的です。さらに「初めての方限定」「匿名モニター」「無料カウンセリング」という、金銭的・心理的ハードルを下げるオファーが行動を後押しします。</div></div>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="rounded-xl p-6 bg-emerald-500/5 border border-emerald-500/20">
+          <h3 class="text-lg font-bold mb-3 text-emerald-200 flex items-center gap-2"><span>💎</span>勝ちパターン</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-emerald-300">▸</span><span>記事中盤（40%前後）に最初のCTAを配置し、関心が高まった読者を早期に捉える。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>記事終盤（85%以降）にCTAを集中配置し、意思決定段階の読者に繰り返しアプローチする。</span></li><li class="flex gap-2"><span class="text-emerald-300">▸</span><span>全CTAのリンク先とオファー内容を『無料カウンセリング/モニター募集』に統一し、メッセージを一本化して迷わせない。</span></li>
+          </ul>
+        </div>
+        <div class="rounded-xl p-6 bg-amber-500/5 border border-amber-500/20">
+          <h3 class="text-lg font-bold mb-3 text-amber-200 flex items-center gap-2"><span>⚡</span>改善施策</h3>
+          <ul class="space-y-2 text-sm text-white/80">
+            <li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】CTAのバリエーションを追加する。現在は同じ画像CTAの繰り返しだが、記事の文脈に合わせて『まずは気軽に相談』といったテキストリンクや、『今すぐ予約する』といった緊急性の高いボタンなど、訴求の強弱を変えたCTAを設置する。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【追加】記事の序盤（10-20%地点）にライトなCTAを設置する。現状では最初のCTAが40%地点のため、序盤で離脱する読者を逃している可能性がある。『この記事で解決できること』の直後などに、期待感を醸成するCTAを追加する。</span></li><li class="flex gap-2"><span class="text-amber-300">▸</span><span>【再設計】画像CTAをテキストが読み取れるデザインに修正、またはHTMLボタンに変更する。CTAの半分でテキストが読み取れておらず（OCRエラー）、クリエイティブの評価ができていない。シンプルで視認性の高いデザインに再設計し、分析精度とアクセシビリティを向上させる。</span></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rounded-xl p-5 bg-blue-500/5 border border-blue-500/20 mb-6"><h4 class="text-sm font-bold text-blue-200 mb-2">💡 このレンズ固有の気づき</h4><p class="text-sm text-white/80">このLPはコンバージョンをすべて画像CTAに依存しています。これによりデザインの統一性は保てますが、テキストのABテストがしにくく、表示速度や分析精度に課題が生じます。特に、CTAの半分が分析ツールで内容を読み取れていない点は、クリエイティブ改善の機会損失に繋がっている可能性があります。</p></div>
+    
     </div>
 </main>
 
-<!-- Overall Improvement Summary -->
-<section class="max-w-7xl mx-auto px-4 md:px-8 pb-16">
-  <div class="rounded-2xl p-6 md:p-8 bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/10">
-    <h2 class="text-2xl font-black mb-4">📐 LP全体の構造観察</h2>
-    <div class="grid md:grid-cols-2 gap-6 text-sm text-white/70">
-      <div>
-        <h3 class="font-bold text-white mb-2">💪 このLPの強み</h3>
-        <ul class="space-y-1 list-disc list-inside">
-          <li>「解決策 & 作用機序」セクションで、治療法とその効果を豊富な情報量と高い証拠（証拠密度0.403）で説得力をもって提示する。</li><li>「証拠 & 権威」セクションで、専門家の推薦・口コミ・症例写真などをバランス良く配置し、サービスの信頼性を高める。</li><li>冒頭の「問題提起」セクションで、ユーザーの悩みを9つの問題提起と6つの煽りによって深く掘り下げ、強い関心を引きつける。</li><li>最終セクションで行動喚起（CTA）を48回と徹底的に繰り返し、コンバージョン機会を最大化する。</li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="font-bold text-white mb-2">⚡ 投入余地（全体）</h3>
-        <ul class="space-y-1 list-disc list-inside">
-          <li>78チャンクと長大でスコアが最も低い（0.579）最終セクションに、費用や副作用などユーザーの不安を解消するコンテンツ（反論処理タグ）を追加する。</li><li>全6チャンクと短い「原因教育 & 認知転換」セクションを拡充し、女性の薄毛に関する医学的根拠の解説を強化する。</li><li>証拠密度が0.019と極端に低い「問題提起」セクションに、薄毛に関する客観的な統計データを追加して序盤の信頼性を高める。</li><li>多すぎる行動喚起（48回）を精査・削減し、最終セクションのメッセージをより明確にしてユーザー体験を向上させる。</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
+
+        <section class="max-w-7xl mx-auto px-4 md:px-8 pb-16">
+          <div class="rounded-2xl p-6 md:p-10 bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/10">
+            <div class="flex items-center gap-3 mb-4"><span class="text-4xl">🎭</span><h2 class="text-2xl md:text-3xl font-black">エグゼクティブ・サマリー</h2></div>
+            <div class="text-white/80 mb-6">
+              <p class="text-xl md:text-2xl font-black gradient-text mb-2">「安心材料の物量で不安を払拭するLP」</p>
+              <p class="text-sm md:text-base">社会的証明、FAQ、保証といった安心材料を大量に投下し、女性が抱える薄毛治療へのあらゆる不安を網羅的に解消することで、コンバージョンへと導く戦略。</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-5 text-sm">
+              <div><h3 class="font-bold text-emerald-200 mb-2">💪 強み</h3><ul class="space-y-1"><li class='flex gap-2'><span class='text-emerald-300'>✓</span><span>豊富な社会的証明・FAQ・保証で、ユーザーの不安を徹底的に払拭する網羅性。</span></li><li class='flex gap-2'><span class='text-emerald-300'>✓</span><span>詳細な注釈や医師の権威性により、医療機関としての信頼性と誠実さを訴求している点。</span></li><li class='flex gap-2'><span class='text-emerald-300'>✓</span><span>関心が高まった読者を取りこぼさない、終盤の反復的な画像CTA配置。</span></li></ul></div>
+              <div><h3 class="font-bold text-amber-200 mb-2">⚠️ 欠けているもの</h3><ul class="space-y-1"><li class='flex gap-2'><span class='text-amber-300'>!</span><span>共感や利用者の声（体験談）が少なく、読者の感情に寄り添うストーリー性が欠如している点。</span></li><li class='flex gap-2'><span class='text-amber-300'>!</span><span>治療効果を直感的に伝えるビフォーアフター写真などの視覚的証拠が乏しい点。</span></li><li class='flex gap-2'><span class='text-amber-300'>!</span><span>治療の仕組みや独自性（メカニズム）に関する説明が不足しており、論理的な納得感が薄い点。</span></li></ul></div>
+              <div><h3 class="font-bold text-cyan-200 mb-2">🚀 次の一手Top3</h3><ul class="space-y-1"><li class='flex gap-2'><span class='text-cyan-300'>→</span><span>治療効果が一目でわかる、説得力の高いビフォーアフター事例（写真・動画）を複数追加する。</span></li><li class='flex gap-2'><span class='text-cyan-300'>→</span><span>読者が自分事化できるような、具体的な悩みと改善を語る顧客の体験談（インタビュー記事・動画）を導入する。</span></li><li class='flex gap-2'><span class='text-cyan-300'>→</span><span>なぜこのクリニックの治療で効果が出るのか、独自の強みや治療のメカニズムを図解などで分かりやすく解説する。</span></li></ul></div>
+            </div>
+          </div>
+        </section>
 
 <footer class="border-t border-white/5 py-8 text-center text-white/40 text-xs">
-  <p>Generated by Opus 4.7 + Gemini Embedding 2 + Gemini 2.5 Pro | 記事LP RAG Portfolio</p>
+  <p>Claude Opus 4.7 × Gemini Embedding 2 × Gemini 2.5 Pro | 記事LP 分析レンズ ポートフォリオ v2</p>
 </footer>
+</div>
 
 <script>
 (function() {
+  const EXPECTED_HASH = "87b37efc066516b3b992186262d0a060d9a97b668d4f9c3610ca7e903011e0e1";
+  const gate = document.getElementById('gate');
+  const content = document.getElementById('content');
+  const form = document.getElementById('gate-form');
+  const input = document.getElementById('pw-input');
+  const errMsg = document.getElementById('pw-error');
+
+  async function sha256(s) {
+    const buf = new TextEncoder().encode(s);
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  // Session memo
+  if (sessionStorage.getItem('pf-auth') === EXPECTED_HASH) {
+    gate.classList.add('hidden');
+    content.classList.remove('locked');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const hash = await sha256(input.value);
+    if (hash === EXPECTED_HASH) {
+      sessionStorage.setItem('pf-auth', EXPECTED_HASH);
+      gate.classList.add('hidden');
+      content.classList.remove('locked');
+    } else {
+      errMsg.style.opacity = '1';
+      input.select();
+    }
+  });
+
+  // Tab switching
   const buttons = document.querySelectorAll('.tab-btn');
   const panes = document.querySelectorAll('.section-pane');
   buttons.forEach(b => {
@@ -916,12 +448,10 @@ AGA + スキンクリニック
       panes.forEach(x => x.classList.remove('active'));
       b.classList.add('active');
       document.getElementById(id).classList.add('active');
-      window.scrollTo({top: document.querySelector('nav').offsetTop + 60, behavior: 'smooth'});
     });
   });
   if (buttons.length > 0) buttons[0].click();
 })();
 </script>
-<script type="application/json" id="rag-data">{"overall": {"total_chunks": 157, "source_url": "https://neo-beautydays.com/ab/WYIeoqPmdkIDETflxgg", "generated_at": "2026-04-24 19:42:59"}, "sections": [{"id": "awareness", "emoji": "🎯", "title": "問題提起 & 共感", "subtitle": "読者の「これ、私のこと？」を掴む", "funnel_label": "Awareness (FV〜導入)", "tags": ["attention", "problem", "empathy", "agitation"], "color_from": "#FF6B6B", "color_to": "#FFA071", "stats": {"chunk_count": 18, "block_composition": {"text": 14, "image": 4, "video": 0}, "tag_distribution": {"problem": 9, "empathy": 2, "agitation": 6, "attention": 1}, "avg_total_score": 0.592, "avg_role_strength": 0.714, "avg_evidence_density": 0.019}, "best_expressions": [{"chunk_id": "neo_block_003", "block_type": "text", "tag": "問題提起", "text": "年齢を重ねるにつれて 抜け毛が増え、気づけば地肌がスケスケ。", "total_score": 0.6443, "role_strength": 0.8812, "evidence": 0.0, "image_url": null}, {"chunk_id": "neo_block_004", "block_type": "image", "tag": "問題提起", "text": "頭皮と、根元に白髪が混じった濃い茶色の髪の毛のクローズアップ画像です。", "total_score": 0.6298, "role_strength": 0.6361, "evidence": 0.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6651364/66539244-c999-41cf-b6df-4c7a1e870c2e.jpg"}, {"chunk_id": "neo_block_128", "block_type": "image", "tag": "問題提起", "text": "頭頂部の髪の毛が薄くなり、地肌が見えている状態を上から撮影した画像です。", "total_score": 0.6265, "role_strength": 0.7538, "evidence": 0.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4453697/896cdfef-90f0-4c9a-8cf2-13808bfb96f3.jpg"}], "visual_highlights": [{"chunk_id": "neo_block_004", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6651364/66539244-c999-41cf-b6df-4c7a1e870c2e.jpg", "tag": "問題提起", "ocr_text": "頭皮と、根元に白髪が混じった濃い茶色の髪の毛のクローズアップ画像です。", "total_score": 0.6298}, {"chunk_id": "neo_block_128", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4453697/896cdfef-90f0-4c9a-8cf2-13808bfb96f3.jpg", "tag": "問題提起", "ocr_text": "頭頂部の髪の毛が薄くなり、地肌が見えている状態を上から撮影した画像です。", "total_score": 0.6265}, {"chunk_id": "neo_block_156", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4301247/df6e6b83-f343-44c9-bc27-01db0db157c0.png", "tag": "問題深刻化", "ocr_text": "この画像は、検索しても見つからず、一度閉じると二度と表示されない可能性がある記事について注意を促す警告文です。 警告\nこの記事は検索しても\n出てきません\n1度閉じてしまうと2度と表示\nされない可能性があるのでご注意ください！", "total_score": 0.6182}], "evidence_signals": [], "intel": {"appeal": "「年齢のせい」と諦めかけているその薄毛の悩みは、実は放置すると悪化し続ける進行性の問題であり、これは他人事ではなく『あなたのこと』ですよ、と強く自分事化させること。", "emotional_hook": "「ドキッ、これって私のこと…？」「このままじゃ、もっとひどくなるのかな…」", "n1_persona": {"age": "40-50代", "situation": "シャンプーやブラッシング時の抜け毛が明らかに増え、分け目や頭頂部の地肌が透けて見えるようになってきた。", "inner_voice": "「もう年だから仕方ないのかな…でも、人の視線が頭に集まっている気がして、鏡を見るのが憂鬱だ。」", "desire": "薄毛の悩みから解放され、髪型を気にせずおしゃれを楽しめる自信を取り戻したい。"}, "improvement": ["「日本人女性の3人に1人が薄毛に悩んでいる」といった公的な統計データを提示し、悩みの普遍性と客観的な証拠（証拠密度）を補強する。", "問題提起だけでなく、「髪型がうまく決まらないと、一日中気分が沈みますよね」といった、読者が日常で感じる具体的な感情に寄り添う共感の表現を増やす。", "導入部分に「皮膚科専門医が解説」や「発毛専門クリニック監修」といった権威性のある情報を加え、この記事が信頼できる情報源であることを示唆し、続きを読む動機を強化する。"]}}, {"id": "education", "emoji": "🔬", "title": "原因教育 & 認知転換", "subtitle": "なぜ悩むのか、常識を覆す", "funnel_label": "Understanding", "tags": ["education", "reframe"], "color_from": "#4FACFE", "color_to": "#00F2FE", "stats": {"chunk_count": 6, "block_composition": {"text": 3, "image": 3, "video": 0}, "tag_distribution": {"education": 2, "reframe": 4}, "avg_total_score": 0.612, "avg_role_strength": 0.737, "avg_evidence_density": 0.056}, "best_expressions": [{"chunk_id": "neo_block_031", "block_type": "text", "tag": "認知転換", "text": "「頭皮環境を整える」 発毛する根拠は一切なし。", "total_score": 0.6638, "role_strength": 0.8042, "evidence": 0.3333, "image_url": null}, {"chunk_id": "neo_block_030", "block_type": "image", "tag": "認知転換", "text": "この画像は、マッサージ、育毛シャンプー、育毛剤といった一般的なホームケアでは薄毛が治らないことを示す警告であり、それらの方法が効果がないことを強調しています。 ホームケアでは治らない！\nマッサージ\nシャンプー\n育毛シャンプー\n育毛\n50ml\n育毛剤", "total_score": 0.6333, "role_strength": 0.7828, "evidence": 0.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4179119/d46c4072-a6d0-420c-81a1-b7d72253ca82.jpg"}, {"chunk_id": "neo_block_034", "block_type": "image", "tag": "原因教育", "text": "この画像は、1つの毛根における正常なヘアサイクル（成長期、移行期、休止期）と、AGA（男性型脱毛症）がそのサイクルを乱し、毛の成長を阻害する様子を図解しています。 1つの毛根から毛が抜けるまで\n早期\n成長期\n脱毛する\n成長が始まる\n中期\n成長期\n成長する\n正常時\n成長期\n毛球がより太く成長する\n後期\n成長期\n毛球の退縮が始まる\n移行期\n毛球が完全に退化する\n休止期\nAGA\n成長できない\n(数ヶ月〜数年)\nAGAになるとヘアサイクルの乱れを引き起こす可能性が", "total_score": 0.6147, "role_strength": 0.7395, "evidence": 0.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6623235/6c501484-4959-4d97-ba88-27f8969b5d57.jpg"}], "visual_highlights": [{"chunk_id": "neo_block_030", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4179119/d46c4072-a6d0-420c-81a1-b7d72253ca82.jpg", "tag": "認知転換", "ocr_text": "この画像は、マッサージ、育毛シャンプー、育毛剤といった一般的なホームケアでは薄毛が治らないことを示す警告であり、それらの方法が効果がないことを強調しています。 ホームケアでは治らない！\nマッサージ\nシャンプー\n育毛シャンプー\n育毛\n50ml\n育毛剤", "total_score": 0.6333}, {"chunk_id": "neo_block_034", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6623235/6c501484-4959-4d97-ba88-27f8969b5d57.jpg", "tag": "原因教育", "ocr_text": "この画像は、1つの毛根における正常なヘアサイクル（成長期、移行期、休止期）と、AGA（男性型脱毛症）がそのサイクルを乱し、毛の成長を阻害する様子を図解しています。 1つの毛根から毛が抜けるまで\n早期\n成長期\n脱毛する\n成長が始まる\n中期\n成長期\n成長する\n正常時\n成長期\n毛球がより太く成長する\n後期\n成長期\n毛球の退縮が始まる\n移行期\n毛球が完全に退化する\n休止期\nAGA\n成長できない\n(数ヶ月〜", "total_score": 0.6147}, {"chunk_id": "neo_block_028", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4453531/57e07dc8-e0cd-48e3-969a-bea3a6641c2f.jpg", "tag": "認知転換", "ocr_text": "シャンプーで泡立った髪の毛と、シャワーを浴びている人の背中が写っています。", "total_score": 0.5858}], "evidence_signals": [], "intel": {"appeal": "あなたがこれまで良かれと思って続けてきた市販の育毛剤や頭皮マッサージは、実は薄毛の根本解決にはならず、本当の原因は乱れたヘアサイクルにあります。", "emotional_hook": "「え、今までのお手入れは全部ムダだったの？」「じゃあ、もう何を信じたらいいの…？」", "n1_persona": {"age": "35-50代", "situation": "市販の育毛剤やスカルプシャンプーをいくつか試したが、一向に効果を感じられず、途方に暮れている。", "inner_voice": "「高いシャンプーを使っても抜け毛が減らない…。私のやり方が悪いのかな…。」", "desire": "もう髪のことで悩みたくない、遠回りせず根本から解決できる方法が知りたい。"}, "improvement": ["「ホームケアでは治らない」という主張を裏付けるために、市販品と医薬品の成分の違いや、皮膚科医の見解といった客観的な証拠を追加する。", "なぜ女性のヘアサイクルが乱れるのか、その原因（ホルモンバランスの変化など）について、もう少し踏み込んだ解説を加えて読者の納得感を深める。", "読者の不安を煽るだけでなく、「しかし、正しい知識があれば解決できます」といった希望を持たせ、次の解決策パートへスムーズに繋ぐ橋渡しの一文を入れる。"]}}, {"id": "solution", "emoji": "💊", "title": "解決策 & 作用機序", "subtitle": "商品の正体と「なぜ効くか」", "funnel_label": "Consideration", "tags": ["solution", "mechanism", "comparison"], "color_from": "#A18CD1", "color_to": "#FBC2EB", "stats": {"chunk_count": 30, "block_composition": {"text": 16, "image": 14, "video": 0}, "tag_distribution": {"mechanism": 4, "solution": 21, "comparison": 5}, "avg_total_score": 0.64, "avg_role_strength": 0.741, "avg_evidence_density": 0.403}, "best_expressions": [{"chunk_id": "neo_block_045", "block_type": "image", "tag": "解決提示", "text": "この画像は、AGA+スキンクリニック、ウィッグ、発毛サロンの3つの薄毛対策を「効果と変化」「治療中」「治療の根拠」の観点から比較した情報提供の表です。 AGA+スキンクリニック レディース\nウィッグ\n発毛サロン\n効果と変化\n自毛が増えていくので\n気付かれにくい\n短期間でボリュームアップ\nするのが気付かれやすい\nリラクゼーション効果\nのみで、持続せず\n治療中\n月1回の来院と薬の服用\n毎日かつらの装着が必須\n月1.2回定期的に通っても\n効果が曖昧\n治療の根拠\n医学的根拠に基づいた治療\n医学的根拠に基", "total_score": 0.8132, "role_strength": 0.7363, "evidence": 1.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6688222/0928b01c-5794-4db1-978d-3ee115cbfb25.png"}, {"chunk_id": "neo_block_133", "block_type": "image", "tag": "解決提示", "text": "髪の悩みを抱える人に対し、発毛実感率93.4%を謳い、全国60院以上のクリニックで症状に合わせた発毛薬を処方することを促す広告画像です。 発毛実感率\n※1\n93.4%\n全国駅チカ\n※2\n60院以上\n髪のお悩みは\nご相談ください\nあなたの症状に合わせて\nあなた専用の発毛薬を\n処方します。\n※3", "total_score": 0.7917, "role_strength": 0.7675, "evidence": 0.6826, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6618095/6e65f267-6a46-45c5-86ca-df718e27a4ee.jpg"}, {"chunk_id": "neo_block_095", "block_type": "image", "tag": "解決提示", "text": "AGA + スキンクリニックでの5ヶ月間の治療による、41歳女性の薄毛改善のビフォーアフターを示す画像です。 41歳女性：治療期間 5ヶ月\nAGA + スキンクリニック\nレディース\nAGA + スキンクリニック\nレディース", "total_score": 0.7799, "role_strength": 0.7802, "evidence": 1.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431403/f3ae2a79-c32c-420a-ba65-eb713af86c85.png"}], "visual_highlights": [{"chunk_id": "neo_block_045", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6688222/0928b01c-5794-4db1-978d-3ee115cbfb25.png", "tag": "解決提示", "ocr_text": "この画像は、AGA+スキンクリニック、ウィッグ、発毛サロンの3つの薄毛対策を「効果と変化」「治療中」「治療の根拠」の観点から比較した情報提供の表です。 AGA+スキンクリニック レディース\nウィッグ\n発毛サロン\n効果と変化\n自毛が増えていくので\n気付かれにくい\n短期間でボリュームアップ\nするのが気付かれやすい\nリラクゼーション効果\nのみで、持続せず\n治療中\n月1回の来院と薬の服用\n毎日かつらの装着", "total_score": 0.8132}, {"chunk_id": "neo_block_133", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6618095/6e65f267-6a46-45c5-86ca-df718e27a4ee.jpg", "tag": "解決提示", "ocr_text": "髪の悩みを抱える人に対し、発毛実感率93.4%を謳い、全国60院以上のクリニックで症状に合わせた発毛薬を処方することを促す広告画像です。 発毛実感率\n※1\n93.4%\n全国駅チカ\n※2\n60院以上\n髪のお悩みは\nご相談ください\nあなたの症状に合わせて\nあなた専用の発毛薬を\n処方します。\n※3", "total_score": 0.7917}, {"chunk_id": "neo_block_095", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431403/f3ae2a79-c32c-420a-ba65-eb713af86c85.png", "tag": "解決提示", "ocr_text": "AGA + スキンクリニックでの5ヶ月間の治療による、41歳女性の薄毛改善のビフォーアフターを示す画像です。 41歳女性：治療期間 5ヶ月\nAGA + スキンクリニック\nレディース\nAGA + スキンクリニック\nレディース", "total_score": 0.7799}], "evidence_signals": [{"label": "%", "value": "93.4", "count": 7}, {"label": "月数", "value": "5", "count": 7}, {"label": "月数", "value": "4", "count": 4}, {"label": "%", "value": "5", "count": 3}, {"label": "人数", "value": "1", "count": 1}], "intel": {"appeal": "当クリニックの治療は、ウィッグやサロンとは違い、医学的根拠に基づいて一人ひとりに合わせた処方を行うため、93.4%という高い実績であなたの髪の悩みを根本から解決できます。", "emotional_hook": ["「ここなら本当に髪が生えるかもしれない」", "「他の方法より確実で、自分に合っていそう」"], "n1_persona": {"age": "30代後半～50代", "situation": "分け目が目立ったり、髪全体のボリュームが減ってきたと感じ、市販の育毛剤や美容院のヘッドスパなどを試したが、効果を実感できずにいる。ウィッグも検討したが、不自然さや手間が気になり踏み切れない。", "inner_voice": "「このまま薄くなっていったらどうしよう…」「クリニックは気になるけど、本当に効果があるのかな？高額じゃないかな？」", "desire": "人の視線を気にせず、ヘアアレンジを楽しんだり、自信を持って外出したりできる、若々しい自分を取り戻したい。"}, "improvement": ["治療薬の有効成分が「なぜ、どのように」髪の成長を促すのか、イラストや図解を用いて作用機序（メカニズム）を分かりやすく解説するコンテンツを追加する。", "掲載されているビフォーアフター症例に、治療期間中の具体的な処方内容、総額費用、そして患者様本人の手書きコメントなどを加え、証拠の密度と信頼性を高める。", "治療を担当する医師の顔写真付きプロフィール（経歴、専門分野、治療への想いなど）を掲載し、専門家による治療であるという権威性・信頼性を強化する。"]}}, {"id": "proof", "emoji": "✅", "title": "証拠 & 権威", "subtitle": "なぜ信じられるか", "funnel_label": "Trust", "tags": ["authority", "social_proof", "testimonial", "visual_evidence", "faq"], "color_from": "#43E97B", "color_to": "#38F9D7", "stats": {"chunk_count": 14, "block_composition": {"text": 11, "image": 3, "video": 0}, "tag_distribution": {"authority": 4, "testimonial": 3, "social_proof": 4, "faq": 1, "visual_evidence": 2}, "avg_total_score": 0.622, "avg_role_strength": 0.725, "avg_evidence_density": 0.413}, "best_expressions": [{"chunk_id": "neo_block_042", "block_type": "image", "tag": "社会的証明", "text": "金色の月桂冠の中に「診療実績 1,500万件 ※1」と書かれており、1500万件の医療実績があることを示しています。 診療実績\n1,500\n万件\n※1", "total_score": 0.8188, "role_strength": 0.7129, "evidence": 1.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6777167/cc56ae99-804c-4874-a19e-a87845e8f689.jpg"}, {"chunk_id": "neo_block_093", "block_type": "image", "tag": "ビジュアル証拠", "text": "36歳の女性がAGAスキンクリニックで4ヶ月間の治療を受けた前後の頭皮の状態を比較した画像で、治療による髪の改善を示しています。 36歳女性\n治療期間 4ヶ月\nAGA + スキンクリニック\nレディース", "total_score": 0.7675, "role_strength": 0.7251, "evidence": 1.0, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431393/2dde897d-a004-4e92-9cc2-c460156ef778.png"}, {"chunk_id": "neo_block_007", "block_type": "text", "tag": "権威性", "text": "※画像はイメージです 「シャワーの後の抜け毛が気になる」 「外出するときは帽子が必須」", "total_score": 0.7281, "role_strength": 0.7437, "evidence": 0.6667, "image_url": null}], "visual_highlights": [{"chunk_id": "neo_block_042", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6777167/cc56ae99-804c-4874-a19e-a87845e8f689.jpg", "tag": "社会的証明", "ocr_text": "金色の月桂冠の中に「診療実績 1,500万件 ※1」と書かれており、1500万件の医療実績があることを示しています。 診療実績\n1,500\n万件\n※1", "total_score": 0.8188}, {"chunk_id": "neo_block_093", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431393/2dde897d-a004-4e92-9cc2-c460156ef778.png", "tag": "ビジュアル証拠", "ocr_text": "36歳の女性がAGAスキンクリニックで4ヶ月間の治療を受けた前後の頭皮の状態を比較した画像で、治療による髪の改善を示しています。 36歳女性\n治療期間 4ヶ月\nAGA + スキンクリニック\nレディース", "total_score": 0.7675}, {"chunk_id": "neo_block_099", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4179103/7b6f3c8f-7d3f-406e-ba9b-132260ad2a9d.png", "tag": "社会的証明", "ocr_text": "白い背景に日本の10,000円札が複数枚扇状に広げられている画像です。 10000\n壱万円", "total_score": 0.6614}], "evidence_signals": [{"label": "金額(万)", "value": "1,500", "count": 6}, {"label": "月数", "value": "4", "count": 6}, {"label": "金額(万)", "value": "1500", "count": 3}, {"label": "年", "value": "25", "count": 1}], "intel": {"appeal": "当院は1,500万件という圧倒的な診療実績と専門家の知見があり、あなたと同じ悩みを持つ多くの女性が実際に発毛効果を実感している、信頼できるクリニックです。", "emotional_hook": "「こんなに実績があるなら信頼できるかも…」「この人も私と同じ悩みだったのに、こんなに変われるんだ！」", "n1_persona": {"age": "30代後半〜40代", "situation": "シャワー後の抜け毛が増え、分け目が目立つようになり、人の目が気になって外出時に帽子が手放せない。", "inner_voice": "「このままどんどん薄くなったらどうしよう…誰にも相談できないし、もう元には戻らないのかな…」", "desire": "薄毛の悩みから解放され、自信を取り戻し、おしゃれや人との交流を心から楽しみたい。"}, "improvement": ["「治療満足度〇%」や「〇人に1人が当院を選択」など、信頼性を裏付ける具体的な数値をグラフ等で視覚的に追加し、証拠の密度を高める。", "30代、40代、50代といった年代別や、悩み（分け目・頭頂部など）別のビフォーアフター付き体験談を複数掲載し、読者が「自分のことだ」と感じられる事例を増やす。", "「治療の痛みは？」「副作用は？」「本当にこの金額で済む？」といった、読者が契約前に抱くであろう不安や疑問に答えるFAQセクションを大幅に拡充する。"]}}, {"id": "close", "emoji": "🚀", "title": "安心 & 行動喚起", "subtitle": "最後の背中押し", "funnel_label": "Conversion", "tags": ["guarantee", "objection", "benefit", "scarcity", "offer", "cta"], "color_from": "#F7971E", "color_to": "#FFD200", "stats": {"chunk_count": 78, "block_composition": {"text": 36, "image": 16, "video": 26}, "tag_distribution": {"guarantee": 19, "cta": 48, "benefit": 7, "scarcity": 3, "objection": 1}, "avg_total_score": 0.579, "avg_role_strength": 0.679, "avg_evidence_density": 0.065}, "best_expressions": [{"chunk_id": "neo_block_001", "block_type": "image", "tag": "保証・安心", "text": "AGAスキンクリニックの、初めて予約する方向けの限定ページであることを示すバナー画像です。 AGAスキンクリニックに\n初めてご予約される方限定ページです", "total_score": 0.8397, "role_strength": 0.7493, "evidence": 0.8715, "image_url": "https://file.mysquadbeyond.com/uploads/article_header_photo/photo/54376/18abeb24-fcda-45e1-9596-612fca3971fe.jpg"}, {"chunk_id": "neo_block_157", "block_type": "image", "tag": "保証・安心", "text": "「1年以内に来院していない方限定」で、フサフサ髪を目指せる薄毛治療のカウンセリング予約を促す赤いボタンと、自由診療に関する注意書きが記載されています。 【1年以内にご来院されていない方限定】\nフサフサ髪を目指せる薄毛治療／\nカウンセリングを予約する\n※自由診療/保険適用外\n※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます", "total_score": 0.8128, "role_strength": 0.7232, "evidence": 0.747, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png"}, {"chunk_id": "neo_block_106", "block_type": "image", "tag": "保証・安心", "text": "この画像は、カウンセリング、初診、頭皮チェック、血液検査を含むすべてのサービスが0円であることを示す広告で、それぞれのサービス内容を写真で紹介しています。 カウンセリング含めすべて0円！※\n初診\n頭皮チェック\n血液検査", "total_score": 0.7135, "role_strength": 0.73, "evidence": 0.6088, "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6543065/843e1fa6-dcc2-4e3c-b6ce-8b478a8414fe.png"}], "visual_highlights": [{"chunk_id": "neo_block_001", "image_url": "https://file.mysquadbeyond.com/uploads/article_header_photo/photo/54376/18abeb24-fcda-45e1-9596-612fca3971fe.jpg", "tag": "保証・安心", "ocr_text": "AGAスキンクリニックの、初めて予約する方向けの限定ページであることを示すバナー画像です。 AGAスキンクリニックに\n初めてご予約される方限定ページです", "total_score": 0.8397}, {"chunk_id": "neo_block_157", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png", "tag": "保証・安心", "ocr_text": "「1年以内に来院していない方限定」で、フサフサ髪を目指せる薄毛治療のカウンセリング予約を促す赤いボタンと、自由診療に関する注意書きが記載されています。 【1年以内にご来院されていない方限定】\nフサフサ髪を目指せる薄毛治療／\nカウンセリングを予約する\n※自由診療/保険適用外\n※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます", "total_score": 0.8128}, {"chunk_id": "neo_block_106", "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6543065/843e1fa6-dcc2-4e3c-b6ce-8b478a8414fe.png", "tag": "保証・安心", "ocr_text": "この画像は、カウンセリング、初診、頭皮チェック、血液検査を含むすべてのサービスが0円であることを示す広告で、それぞれのサービス内容を写真で紹介しています。 カウンセリング含めすべて0円！※\n初診\n頭皮チェック\n血液検査", "total_score": 0.7135}], "evidence_signals": [{"label": "人数", "value": "307", "count": 1}, {"label": "月数", "value": "6", "count": 1}, {"label": "年", "value": "23", "count": 1}, {"label": "年", "value": "24", "count": 1}], "intel": {"appeal": "このクリニックの無料カウンセリングは、無理な勧誘の心配なく、たった30秒で簡単に予約できるので、安心して薄毛治療の第一歩を踏み出してください。", "emotional_hook": "「話を聞くだけでも大丈夫かな…？」「しつこく勧誘されたり、高額な契約を迫られたりしたらどうしよう…」", "n1_persona": {"age": "30代後半～50代", "situation": "最近、シャンプー後の抜け毛や分け目の地肌が目立つようになり、人の視線が気になり始めた。", "inner_voice": "「このままどんどん薄くなったらどうしよう…もう歳だから仕方ないのかな…」", "desire": "「髪の悩みを気にせず、自信を持ってオシャレや外出を楽しめる毎日を取り戻したい」"}, "improvement": ["予約ボタンの直前に「よくあるご質問」コーナーを設け、『治療の総額は？』『副作用は？』といった金銭面や身体的な不安に対する反論処理を強化する。", "行動喚起（CTA）の近くに、治療後の明るい未来を具体的にイメージさせるお客様の声（例：「鏡を見るのが楽しくなった」）を一行追加し、感情的なベネフィットを再訴求する。", "「今月限定の無料カウンセリング枠は残りわずかです」のように、具体的な期間や人数を提示して希少性を高め、予約を先延ばしにさせない工夫を施す。"]}}], "unassigned_count": 11, "overall_strengths": ["「解決策 & 作用機序」セクションで、治療法とその効果を豊富な情報量と高い証拠（証拠密度0.403）で説得力をもって提示する。", "「証拠 & 権威」セクションで、専門家の推薦・口コミ・症例写真などをバランス良く配置し、サービスの信頼性を高める。", "冒頭の「問題提起」セクションで、ユーザーの悩みを9つの問題提起と6つの煽りによって深く掘り下げ、強い関心を引きつける。", "最終セクションで行動喚起（CTA）を48回と徹底的に繰り返し、コンバージョン機会を最大化する。"], "overall_improvements": ["78チャンクと長大でスコアが最も低い（0.579）最終セクションに、費用や副作用などユーザーの不安を解消するコンテンツ（反論処理タグ）を追加する。", "全6チャンクと短い「原因教育 & 認知転換」セクションを拡充し、女性の薄毛に関する医学的根拠の解説を強化する。", "証拠密度が0.019と極端に低い「問題提起」セクションに、薄毛に関する客観的な統計データを追加して序盤の信頼性を高める。", "多すぎる行動喚起（48回）を精査・削減し、最終セクションのメッセージをより明確にしてユーザー体験を向上させる。"]}</script>
 </body>
 </html>
