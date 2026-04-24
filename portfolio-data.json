@@ -1,0 +1,607 @@
+{
+  "overall": {
+    "total_chunks": 157,
+    "source_url": "https://neo-beautydays.com/ab/WYIeoqPmdkIDETflxgg",
+    "generated_at": "2026-04-24 19:42:59"
+  },
+  "sections": [
+    {
+      "id": "awareness",
+      "emoji": "🎯",
+      "title": "問題提起 & 共感",
+      "subtitle": "読者の「これ、私のこと？」を掴む",
+      "funnel_label": "Awareness (FV〜導入)",
+      "tags": [
+        "attention",
+        "problem",
+        "empathy",
+        "agitation"
+      ],
+      "color_from": "#FF6B6B",
+      "color_to": "#FFA071",
+      "stats": {
+        "chunk_count": 18,
+        "block_composition": {
+          "text": 14,
+          "image": 4,
+          "video": 0
+        },
+        "tag_distribution": {
+          "problem": 9,
+          "empathy": 2,
+          "agitation": 6,
+          "attention": 1
+        },
+        "avg_total_score": 0.592,
+        "avg_role_strength": 0.714,
+        "avg_evidence_density": 0.019
+      },
+      "best_expressions": [
+        {
+          "chunk_id": "neo_block_003",
+          "block_type": "text",
+          "tag": "問題提起",
+          "text": "年齢を重ねるにつれて 抜け毛が増え、気づけば地肌がスケスケ。",
+          "total_score": 0.6443,
+          "role_strength": 0.8812,
+          "evidence": 0.0,
+          "image_url": null
+        },
+        {
+          "chunk_id": "neo_block_004",
+          "block_type": "image",
+          "tag": "問題提起",
+          "text": "頭皮と、根元に白髪が混じった濃い茶色の髪の毛のクローズアップ画像です。",
+          "total_score": 0.6298,
+          "role_strength": 0.6361,
+          "evidence": 0.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6651364/66539244-c999-41cf-b6df-4c7a1e870c2e.jpg"
+        },
+        {
+          "chunk_id": "neo_block_128",
+          "block_type": "image",
+          "tag": "問題提起",
+          "text": "頭頂部の髪の毛が薄くなり、地肌が見えている状態を上から撮影した画像です。",
+          "total_score": 0.6265,
+          "role_strength": 0.7538,
+          "evidence": 0.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4453697/896cdfef-90f0-4c9a-8cf2-13808bfb96f3.jpg"
+        }
+      ],
+      "visual_highlights": [
+        {
+          "chunk_id": "neo_block_004",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6651364/66539244-c999-41cf-b6df-4c7a1e870c2e.jpg",
+          "tag": "問題提起",
+          "ocr_text": "頭皮と、根元に白髪が混じった濃い茶色の髪の毛のクローズアップ画像です。",
+          "total_score": 0.6298
+        },
+        {
+          "chunk_id": "neo_block_128",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4453697/896cdfef-90f0-4c9a-8cf2-13808bfb96f3.jpg",
+          "tag": "問題提起",
+          "ocr_text": "頭頂部の髪の毛が薄くなり、地肌が見えている状態を上から撮影した画像です。",
+          "total_score": 0.6265
+        },
+        {
+          "chunk_id": "neo_block_156",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4301247/df6e6b83-f343-44c9-bc27-01db0db157c0.png",
+          "tag": "問題深刻化",
+          "ocr_text": "この画像は、検索しても見つからず、一度閉じると二度と表示されない可能性がある記事について注意を促す警告文です。 警告\nこの記事は検索しても\n出てきません\n1度閉じてしまうと2度と表示\nされない可能性があるのでご注意ください！",
+          "total_score": 0.6182
+        }
+      ],
+      "evidence_signals": [],
+      "intel": {
+        "appeal": "「年齢のせい」と諦めかけているその薄毛の悩みは、実は放置すると悪化し続ける進行性の問題であり、これは他人事ではなく『あなたのこと』ですよ、と強く自分事化させること。",
+        "emotional_hook": "「ドキッ、これって私のこと…？」「このままじゃ、もっとひどくなるのかな…」",
+        "n1_persona": {
+          "age": "40-50代",
+          "situation": "シャンプーやブラッシング時の抜け毛が明らかに増え、分け目や頭頂部の地肌が透けて見えるようになってきた。",
+          "inner_voice": "「もう年だから仕方ないのかな…でも、人の視線が頭に集まっている気がして、鏡を見るのが憂鬱だ。」",
+          "desire": "薄毛の悩みから解放され、髪型を気にせずおしゃれを楽しめる自信を取り戻したい。"
+        },
+        "improvement": [
+          "「日本人女性の3人に1人が薄毛に悩んでいる」といった公的な統計データを提示し、悩みの普遍性と客観的な証拠（証拠密度）を補強する。",
+          "問題提起だけでなく、「髪型がうまく決まらないと、一日中気分が沈みますよね」といった、読者が日常で感じる具体的な感情に寄り添う共感の表現を増やす。",
+          "導入部分に「皮膚科専門医が解説」や「発毛専門クリニック監修」といった権威性のある情報を加え、この記事が信頼できる情報源であることを示唆し、続きを読む動機を強化する。"
+        ]
+      }
+    },
+    {
+      "id": "education",
+      "emoji": "🔬",
+      "title": "原因教育 & 認知転換",
+      "subtitle": "なぜ悩むのか、常識を覆す",
+      "funnel_label": "Understanding",
+      "tags": [
+        "education",
+        "reframe"
+      ],
+      "color_from": "#4FACFE",
+      "color_to": "#00F2FE",
+      "stats": {
+        "chunk_count": 6,
+        "block_composition": {
+          "text": 3,
+          "image": 3,
+          "video": 0
+        },
+        "tag_distribution": {
+          "education": 2,
+          "reframe": 4
+        },
+        "avg_total_score": 0.612,
+        "avg_role_strength": 0.737,
+        "avg_evidence_density": 0.056
+      },
+      "best_expressions": [
+        {
+          "chunk_id": "neo_block_031",
+          "block_type": "text",
+          "tag": "認知転換",
+          "text": "「頭皮環境を整える」 発毛する根拠は一切なし。",
+          "total_score": 0.6638,
+          "role_strength": 0.8042,
+          "evidence": 0.3333,
+          "image_url": null
+        },
+        {
+          "chunk_id": "neo_block_030",
+          "block_type": "image",
+          "tag": "認知転換",
+          "text": "この画像は、マッサージ、育毛シャンプー、育毛剤といった一般的なホームケアでは薄毛が治らないことを示す警告であり、それらの方法が効果がないことを強調しています。 ホームケアでは治らない！\nマッサージ\nシャンプー\n育毛シャンプー\n育毛\n50ml\n育毛剤",
+          "total_score": 0.6333,
+          "role_strength": 0.7828,
+          "evidence": 0.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4179119/d46c4072-a6d0-420c-81a1-b7d72253ca82.jpg"
+        },
+        {
+          "chunk_id": "neo_block_034",
+          "block_type": "image",
+          "tag": "原因教育",
+          "text": "この画像は、1つの毛根における正常なヘアサイクル（成長期、移行期、休止期）と、AGA（男性型脱毛症）がそのサイクルを乱し、毛の成長を阻害する様子を図解しています。 1つの毛根から毛が抜けるまで\n早期\n成長期\n脱毛する\n成長が始まる\n中期\n成長期\n成長する\n正常時\n成長期\n毛球がより太く成長する\n後期\n成長期\n毛球の退縮が始まる\n移行期\n毛球が完全に退化する\n休止期\nAGA\n成長できない\n(数ヶ月〜数年)\nAGAになるとヘアサイクルの乱れを引き起こす可能性が",
+          "total_score": 0.6147,
+          "role_strength": 0.7395,
+          "evidence": 0.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6623235/6c501484-4959-4d97-ba88-27f8969b5d57.jpg"
+        }
+      ],
+      "visual_highlights": [
+        {
+          "chunk_id": "neo_block_030",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4179119/d46c4072-a6d0-420c-81a1-b7d72253ca82.jpg",
+          "tag": "認知転換",
+          "ocr_text": "この画像は、マッサージ、育毛シャンプー、育毛剤といった一般的なホームケアでは薄毛が治らないことを示す警告であり、それらの方法が効果がないことを強調しています。 ホームケアでは治らない！\nマッサージ\nシャンプー\n育毛シャンプー\n育毛\n50ml\n育毛剤",
+          "total_score": 0.6333
+        },
+        {
+          "chunk_id": "neo_block_034",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6623235/6c501484-4959-4d97-ba88-27f8969b5d57.jpg",
+          "tag": "原因教育",
+          "ocr_text": "この画像は、1つの毛根における正常なヘアサイクル（成長期、移行期、休止期）と、AGA（男性型脱毛症）がそのサイクルを乱し、毛の成長を阻害する様子を図解しています。 1つの毛根から毛が抜けるまで\n早期\n成長期\n脱毛する\n成長が始まる\n中期\n成長期\n成長する\n正常時\n成長期\n毛球がより太く成長する\n後期\n成長期\n毛球の退縮が始まる\n移行期\n毛球が完全に退化する\n休止期\nAGA\n成長できない\n(数ヶ月〜",
+          "total_score": 0.6147
+        },
+        {
+          "chunk_id": "neo_block_028",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4453531/57e07dc8-e0cd-48e3-969a-bea3a6641c2f.jpg",
+          "tag": "認知転換",
+          "ocr_text": "シャンプーで泡立った髪の毛と、シャワーを浴びている人の背中が写っています。",
+          "total_score": 0.5858
+        }
+      ],
+      "evidence_signals": [],
+      "intel": {
+        "appeal": "あなたがこれまで良かれと思って続けてきた市販の育毛剤や頭皮マッサージは、実は薄毛の根本解決にはならず、本当の原因は乱れたヘアサイクルにあります。",
+        "emotional_hook": "「え、今までのお手入れは全部ムダだったの？」「じゃあ、もう何を信じたらいいの…？」",
+        "n1_persona": {
+          "age": "35-50代",
+          "situation": "市販の育毛剤やスカルプシャンプーをいくつか試したが、一向に効果を感じられず、途方に暮れている。",
+          "inner_voice": "「高いシャンプーを使っても抜け毛が減らない…。私のやり方が悪いのかな…。」",
+          "desire": "もう髪のことで悩みたくない、遠回りせず根本から解決できる方法が知りたい。"
+        },
+        "improvement": [
+          "「ホームケアでは治らない」という主張を裏付けるために、市販品と医薬品の成分の違いや、皮膚科医の見解といった客観的な証拠を追加する。",
+          "なぜ女性のヘアサイクルが乱れるのか、その原因（ホルモンバランスの変化など）について、もう少し踏み込んだ解説を加えて読者の納得感を深める。",
+          "読者の不安を煽るだけでなく、「しかし、正しい知識があれば解決できます」といった希望を持たせ、次の解決策パートへスムーズに繋ぐ橋渡しの一文を入れる。"
+        ]
+      }
+    },
+    {
+      "id": "solution",
+      "emoji": "💊",
+      "title": "解決策 & 作用機序",
+      "subtitle": "商品の正体と「なぜ効くか」",
+      "funnel_label": "Consideration",
+      "tags": [
+        "solution",
+        "mechanism",
+        "comparison"
+      ],
+      "color_from": "#A18CD1",
+      "color_to": "#FBC2EB",
+      "stats": {
+        "chunk_count": 30,
+        "block_composition": {
+          "text": 16,
+          "image": 14,
+          "video": 0
+        },
+        "tag_distribution": {
+          "mechanism": 4,
+          "solution": 21,
+          "comparison": 5
+        },
+        "avg_total_score": 0.64,
+        "avg_role_strength": 0.741,
+        "avg_evidence_density": 0.403
+      },
+      "best_expressions": [
+        {
+          "chunk_id": "neo_block_045",
+          "block_type": "image",
+          "tag": "解決提示",
+          "text": "この画像は、AGA+スキンクリニック、ウィッグ、発毛サロンの3つの薄毛対策を「効果と変化」「治療中」「治療の根拠」の観点から比較した情報提供の表です。 AGA+スキンクリニック レディース\nウィッグ\n発毛サロン\n効果と変化\n自毛が増えていくので\n気付かれにくい\n短期間でボリュームアップ\nするのが気付かれやすい\nリラクゼーション効果\nのみで、持続せず\n治療中\n月1回の来院と薬の服用\n毎日かつらの装着が必須\n月1.2回定期的に通っても\n効果が曖昧\n治療の根拠\n医学的根拠に基づいた治療\n医学的根拠に基",
+          "total_score": 0.8132,
+          "role_strength": 0.7363,
+          "evidence": 1.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6688222/0928b01c-5794-4db1-978d-3ee115cbfb25.png"
+        },
+        {
+          "chunk_id": "neo_block_133",
+          "block_type": "image",
+          "tag": "解決提示",
+          "text": "髪の悩みを抱える人に対し、発毛実感率93.4%を謳い、全国60院以上のクリニックで症状に合わせた発毛薬を処方することを促す広告画像です。 発毛実感率\n※1\n93.4%\n全国駅チカ\n※2\n60院以上\n髪のお悩みは\nご相談ください\nあなたの症状に合わせて\nあなた専用の発毛薬を\n処方します。\n※3",
+          "total_score": 0.7917,
+          "role_strength": 0.7675,
+          "evidence": 0.6826,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6618095/6e65f267-6a46-45c5-86ca-df718e27a4ee.jpg"
+        },
+        {
+          "chunk_id": "neo_block_095",
+          "block_type": "image",
+          "tag": "解決提示",
+          "text": "AGA + スキンクリニックでの5ヶ月間の治療による、41歳女性の薄毛改善のビフォーアフターを示す画像です。 41歳女性：治療期間 5ヶ月\nAGA + スキンクリニック\nレディース\nAGA + スキンクリニック\nレディース",
+          "total_score": 0.7799,
+          "role_strength": 0.7802,
+          "evidence": 1.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431403/f3ae2a79-c32c-420a-ba65-eb713af86c85.png"
+        }
+      ],
+      "visual_highlights": [
+        {
+          "chunk_id": "neo_block_045",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6688222/0928b01c-5794-4db1-978d-3ee115cbfb25.png",
+          "tag": "解決提示",
+          "ocr_text": "この画像は、AGA+スキンクリニック、ウィッグ、発毛サロンの3つの薄毛対策を「効果と変化」「治療中」「治療の根拠」の観点から比較した情報提供の表です。 AGA+スキンクリニック レディース\nウィッグ\n発毛サロン\n効果と変化\n自毛が増えていくので\n気付かれにくい\n短期間でボリュームアップ\nするのが気付かれやすい\nリラクゼーション効果\nのみで、持続せず\n治療中\n月1回の来院と薬の服用\n毎日かつらの装着",
+          "total_score": 0.8132
+        },
+        {
+          "chunk_id": "neo_block_133",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6618095/6e65f267-6a46-45c5-86ca-df718e27a4ee.jpg",
+          "tag": "解決提示",
+          "ocr_text": "髪の悩みを抱える人に対し、発毛実感率93.4%を謳い、全国60院以上のクリニックで症状に合わせた発毛薬を処方することを促す広告画像です。 発毛実感率\n※1\n93.4%\n全国駅チカ\n※2\n60院以上\n髪のお悩みは\nご相談ください\nあなたの症状に合わせて\nあなた専用の発毛薬を\n処方します。\n※3",
+          "total_score": 0.7917
+        },
+        {
+          "chunk_id": "neo_block_095",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431403/f3ae2a79-c32c-420a-ba65-eb713af86c85.png",
+          "tag": "解決提示",
+          "ocr_text": "AGA + スキンクリニックでの5ヶ月間の治療による、41歳女性の薄毛改善のビフォーアフターを示す画像です。 41歳女性：治療期間 5ヶ月\nAGA + スキンクリニック\nレディース\nAGA + スキンクリニック\nレディース",
+          "total_score": 0.7799
+        }
+      ],
+      "evidence_signals": [
+        {
+          "label": "%",
+          "value": "93.4",
+          "count": 7
+        },
+        {
+          "label": "月数",
+          "value": "5",
+          "count": 7
+        },
+        {
+          "label": "月数",
+          "value": "4",
+          "count": 4
+        },
+        {
+          "label": "%",
+          "value": "5",
+          "count": 3
+        },
+        {
+          "label": "人数",
+          "value": "1",
+          "count": 1
+        }
+      ],
+      "intel": {
+        "appeal": "当クリニックの治療は、ウィッグやサロンとは違い、医学的根拠に基づいて一人ひとりに合わせた処方を行うため、93.4%という高い実績であなたの髪の悩みを根本から解決できます。",
+        "emotional_hook": [
+          "「ここなら本当に髪が生えるかもしれない」",
+          "「他の方法より確実で、自分に合っていそう」"
+        ],
+        "n1_persona": {
+          "age": "30代後半～50代",
+          "situation": "分け目が目立ったり、髪全体のボリュームが減ってきたと感じ、市販の育毛剤や美容院のヘッドスパなどを試したが、効果を実感できずにいる。ウィッグも検討したが、不自然さや手間が気になり踏み切れない。",
+          "inner_voice": "「このまま薄くなっていったらどうしよう…」「クリニックは気になるけど、本当に効果があるのかな？高額じゃないかな？」",
+          "desire": "人の視線を気にせず、ヘアアレンジを楽しんだり、自信を持って外出したりできる、若々しい自分を取り戻したい。"
+        },
+        "improvement": [
+          "治療薬の有効成分が「なぜ、どのように」髪の成長を促すのか、イラストや図解を用いて作用機序（メカニズム）を分かりやすく解説するコンテンツを追加する。",
+          "掲載されているビフォーアフター症例に、治療期間中の具体的な処方内容、総額費用、そして患者様本人の手書きコメントなどを加え、証拠の密度と信頼性を高める。",
+          "治療を担当する医師の顔写真付きプロフィール（経歴、専門分野、治療への想いなど）を掲載し、専門家による治療であるという権威性・信頼性を強化する。"
+        ]
+      }
+    },
+    {
+      "id": "proof",
+      "emoji": "✅",
+      "title": "証拠 & 権威",
+      "subtitle": "なぜ信じられるか",
+      "funnel_label": "Trust",
+      "tags": [
+        "authority",
+        "social_proof",
+        "testimonial",
+        "visual_evidence",
+        "faq"
+      ],
+      "color_from": "#43E97B",
+      "color_to": "#38F9D7",
+      "stats": {
+        "chunk_count": 14,
+        "block_composition": {
+          "text": 11,
+          "image": 3,
+          "video": 0
+        },
+        "tag_distribution": {
+          "authority": 4,
+          "testimonial": 3,
+          "social_proof": 4,
+          "faq": 1,
+          "visual_evidence": 2
+        },
+        "avg_total_score": 0.622,
+        "avg_role_strength": 0.725,
+        "avg_evidence_density": 0.413
+      },
+      "best_expressions": [
+        {
+          "chunk_id": "neo_block_042",
+          "block_type": "image",
+          "tag": "社会的証明",
+          "text": "金色の月桂冠の中に「診療実績 1,500万件 ※1」と書かれており、1500万件の医療実績があることを示しています。 診療実績\n1,500\n万件\n※1",
+          "total_score": 0.8188,
+          "role_strength": 0.7129,
+          "evidence": 1.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6777167/cc56ae99-804c-4874-a19e-a87845e8f689.jpg"
+        },
+        {
+          "chunk_id": "neo_block_093",
+          "block_type": "image",
+          "tag": "ビジュアル証拠",
+          "text": "36歳の女性がAGAスキンクリニックで4ヶ月間の治療を受けた前後の頭皮の状態を比較した画像で、治療による髪の改善を示しています。 36歳女性\n治療期間 4ヶ月\nAGA + スキンクリニック\nレディース",
+          "total_score": 0.7675,
+          "role_strength": 0.7251,
+          "evidence": 1.0,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431393/2dde897d-a004-4e92-9cc2-c460156ef778.png"
+        },
+        {
+          "chunk_id": "neo_block_007",
+          "block_type": "text",
+          "tag": "権威性",
+          "text": "※画像はイメージです 「シャワーの後の抜け毛が気になる」 「外出するときは帽子が必須」",
+          "total_score": 0.7281,
+          "role_strength": 0.7437,
+          "evidence": 0.6667,
+          "image_url": null
+        }
+      ],
+      "visual_highlights": [
+        {
+          "chunk_id": "neo_block_042",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6777167/cc56ae99-804c-4874-a19e-a87845e8f689.jpg",
+          "tag": "社会的証明",
+          "ocr_text": "金色の月桂冠の中に「診療実績 1,500万件 ※1」と書かれており、1500万件の医療実績があることを示しています。 診療実績\n1,500\n万件\n※1",
+          "total_score": 0.8188
+        },
+        {
+          "chunk_id": "neo_block_093",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6431393/2dde897d-a004-4e92-9cc2-c460156ef778.png",
+          "tag": "ビジュアル証拠",
+          "ocr_text": "36歳の女性がAGAスキンクリニックで4ヶ月間の治療を受けた前後の頭皮の状態を比較した画像で、治療による髪の改善を示しています。 36歳女性\n治療期間 4ヶ月\nAGA + スキンクリニック\nレディース",
+          "total_score": 0.7675
+        },
+        {
+          "chunk_id": "neo_block_099",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/4179103/7b6f3c8f-7d3f-406e-ba9b-132260ad2a9d.png",
+          "tag": "社会的証明",
+          "ocr_text": "白い背景に日本の10,000円札が複数枚扇状に広げられている画像です。 10000\n壱万円",
+          "total_score": 0.6614
+        }
+      ],
+      "evidence_signals": [
+        {
+          "label": "金額(万)",
+          "value": "1,500",
+          "count": 6
+        },
+        {
+          "label": "月数",
+          "value": "4",
+          "count": 6
+        },
+        {
+          "label": "金額(万)",
+          "value": "1500",
+          "count": 3
+        },
+        {
+          "label": "年",
+          "value": "25",
+          "count": 1
+        }
+      ],
+      "intel": {
+        "appeal": "当院は1,500万件という圧倒的な診療実績と専門家の知見があり、あなたと同じ悩みを持つ多くの女性が実際に発毛効果を実感している、信頼できるクリニックです。",
+        "emotional_hook": "「こんなに実績があるなら信頼できるかも…」「この人も私と同じ悩みだったのに、こんなに変われるんだ！」",
+        "n1_persona": {
+          "age": "30代後半〜40代",
+          "situation": "シャワー後の抜け毛が増え、分け目が目立つようになり、人の目が気になって外出時に帽子が手放せない。",
+          "inner_voice": "「このままどんどん薄くなったらどうしよう…誰にも相談できないし、もう元には戻らないのかな…」",
+          "desire": "薄毛の悩みから解放され、自信を取り戻し、おしゃれや人との交流を心から楽しみたい。"
+        },
+        "improvement": [
+          "「治療満足度〇%」や「〇人に1人が当院を選択」など、信頼性を裏付ける具体的な数値をグラフ等で視覚的に追加し、証拠の密度を高める。",
+          "30代、40代、50代といった年代別や、悩み（分け目・頭頂部など）別のビフォーアフター付き体験談を複数掲載し、読者が「自分のことだ」と感じられる事例を増やす。",
+          "「治療の痛みは？」「副作用は？」「本当にこの金額で済む？」といった、読者が契約前に抱くであろう不安や疑問に答えるFAQセクションを大幅に拡充する。"
+        ]
+      }
+    },
+    {
+      "id": "close",
+      "emoji": "🚀",
+      "title": "安心 & 行動喚起",
+      "subtitle": "最後の背中押し",
+      "funnel_label": "Conversion",
+      "tags": [
+        "guarantee",
+        "objection",
+        "benefit",
+        "scarcity",
+        "offer",
+        "cta"
+      ],
+      "color_from": "#F7971E",
+      "color_to": "#FFD200",
+      "stats": {
+        "chunk_count": 78,
+        "block_composition": {
+          "text": 36,
+          "image": 16,
+          "video": 26
+        },
+        "tag_distribution": {
+          "guarantee": 19,
+          "cta": 48,
+          "benefit": 7,
+          "scarcity": 3,
+          "objection": 1
+        },
+        "avg_total_score": 0.579,
+        "avg_role_strength": 0.679,
+        "avg_evidence_density": 0.065
+      },
+      "best_expressions": [
+        {
+          "chunk_id": "neo_block_001",
+          "block_type": "image",
+          "tag": "保証・安心",
+          "text": "AGAスキンクリニックの、初めて予約する方向けの限定ページであることを示すバナー画像です。 AGAスキンクリニックに\n初めてご予約される方限定ページです",
+          "total_score": 0.8397,
+          "role_strength": 0.7493,
+          "evidence": 0.8715,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_header_photo/photo/54376/18abeb24-fcda-45e1-9596-612fca3971fe.jpg"
+        },
+        {
+          "chunk_id": "neo_block_157",
+          "block_type": "image",
+          "tag": "保証・安心",
+          "text": "「1年以内に来院していない方限定」で、フサフサ髪を目指せる薄毛治療のカウンセリング予約を促す赤いボタンと、自由診療に関する注意書きが記載されています。 【1年以内にご来院されていない方限定】\nフサフサ髪を目指せる薄毛治療／\nカウンセリングを予約する\n※自由診療/保険適用外\n※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます",
+          "total_score": 0.8128,
+          "role_strength": 0.7232,
+          "evidence": 0.747,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png"
+        },
+        {
+          "chunk_id": "neo_block_106",
+          "block_type": "image",
+          "tag": "保証・安心",
+          "text": "この画像は、カウンセリング、初診、頭皮チェック、血液検査を含むすべてのサービスが0円であることを示す広告で、それぞれのサービス内容を写真で紹介しています。 カウンセリング含めすべて0円！※\n初診\n頭皮チェック\n血液検査",
+          "total_score": 0.7135,
+          "role_strength": 0.73,
+          "evidence": 0.6088,
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6543065/843e1fa6-dcc2-4e3c-b6ce-8b478a8414fe.png"
+        }
+      ],
+      "visual_highlights": [
+        {
+          "chunk_id": "neo_block_001",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_header_photo/photo/54376/18abeb24-fcda-45e1-9596-612fca3971fe.jpg",
+          "tag": "保証・安心",
+          "ocr_text": "AGAスキンクリニックの、初めて予約する方向けの限定ページであることを示すバナー画像です。 AGAスキンクリニックに\n初めてご予約される方限定ページです",
+          "total_score": 0.8397
+        },
+        {
+          "chunk_id": "neo_block_157",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6798534/cc637d3f-3f4f-4f63-939b-8ef2c25fe8f6.png",
+          "tag": "保証・安心",
+          "ocr_text": "「1年以内に来院していない方限定」で、フサフサ髪を目指せる薄毛治療のカウンセリング予約を促す赤いボタンと、自由診療に関する注意書きが記載されています。 【1年以内にご来院されていない方限定】\nフサフサ髪を目指せる薄毛治療／\nカウンセリングを予約する\n※自由診療/保険適用外\n※医師の判断により治療を受けられない可能性や医薬品を処方できない可能性がございます",
+          "total_score": 0.8128
+        },
+        {
+          "chunk_id": "neo_block_106",
+          "image_url": "https://file.mysquadbeyond.com/uploads/article_photo/photo/6543065/843e1fa6-dcc2-4e3c-b6ce-8b478a8414fe.png",
+          "tag": "保証・安心",
+          "ocr_text": "この画像は、カウンセリング、初診、頭皮チェック、血液検査を含むすべてのサービスが0円であることを示す広告で、それぞれのサービス内容を写真で紹介しています。 カウンセリング含めすべて0円！※\n初診\n頭皮チェック\n血液検査",
+          "total_score": 0.7135
+        }
+      ],
+      "evidence_signals": [
+        {
+          "label": "人数",
+          "value": "307",
+          "count": 1
+        },
+        {
+          "label": "月数",
+          "value": "6",
+          "count": 1
+        },
+        {
+          "label": "年",
+          "value": "23",
+          "count": 1
+        },
+        {
+          "label": "年",
+          "value": "24",
+          "count": 1
+        }
+      ],
+      "intel": {
+        "appeal": "このクリニックの無料カウンセリングは、無理な勧誘の心配なく、たった30秒で簡単に予約できるので、安心して薄毛治療の第一歩を踏み出してください。",
+        "emotional_hook": "「話を聞くだけでも大丈夫かな…？」「しつこく勧誘されたり、高額な契約を迫られたりしたらどうしよう…」",
+        "n1_persona": {
+          "age": "30代後半～50代",
+          "situation": "最近、シャンプー後の抜け毛や分け目の地肌が目立つようになり、人の視線が気になり始めた。",
+          "inner_voice": "「このままどんどん薄くなったらどうしよう…もう歳だから仕方ないのかな…」",
+          "desire": "「髪の悩みを気にせず、自信を持ってオシャレや外出を楽しめる毎日を取り戻したい」"
+        },
+        "improvement": [
+          "予約ボタンの直前に「よくあるご質問」コーナーを設け、『治療の総額は？』『副作用は？』といった金銭面や身体的な不安に対する反論処理を強化する。",
+          "行動喚起（CTA）の近くに、治療後の明るい未来を具体的にイメージさせるお客様の声（例：「鏡を見るのが楽しくなった」）を一行追加し、感情的なベネフィットを再訴求する。",
+          "「今月限定の無料カウンセリング枠は残りわずかです」のように、具体的な期間や人数を提示して希少性を高め、予約を先延ばしにさせない工夫を施す。"
+        ]
+      }
+    }
+  ],
+  "unassigned_count": 11,
+  "overall_strengths": [
+    "「解決策 & 作用機序」セクションで、治療法とその効果を豊富な情報量と高い証拠（証拠密度0.403）で説得力をもって提示する。",
+    "「証拠 & 権威」セクションで、専門家の推薦・口コミ・症例写真などをバランス良く配置し、サービスの信頼性を高める。",
+    "冒頭の「問題提起」セクションで、ユーザーの悩みを9つの問題提起と6つの煽りによって深く掘り下げ、強い関心を引きつける。",
+    "最終セクションで行動喚起（CTA）を48回と徹底的に繰り返し、コンバージョン機会を最大化する。"
+  ],
+  "overall_improvements": [
+    "78チャンクと長大でスコアが最も低い（0.579）最終セクションに、費用や副作用などユーザーの不安を解消するコンテンツ（反論処理タグ）を追加する。",
+    "全6チャンクと短い「原因教育 & 認知転換」セクションを拡充し、女性の薄毛に関する医学的根拠の解説を強化する。",
+    "証拠密度が0.019と極端に低い「問題提起」セクションに、薄毛に関する客観的な統計データを追加して序盤の信頼性を高める。",
+    "多すぎる行動喚起（48回）を精査・削減し、最終セクションのメッセージをより明確にしてユーザー体験を向上させる。"
+  ]
+}
